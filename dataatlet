@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Database Atlet BKC Kab. Bogor</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f2f4f6;--sf:#fff;--ink:#14202b;--mut:#5d6b78;--ln:#d9dfe5;--ac:#c8102e;--acb:#fff;--gold:#c9961a;--sil:#8a95a1;--brz:#a8642b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f161d;--sf:#18222c;--ink:#eef2f5;--mut:#9aa8b5;--ln:#2a3844;--ac:#ef3d57;--acb:#fff;--gold:#e3b53f;--sil:#a9b4bf;--brz:#cf8a4f}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f161d;--sf:#18222c;--ink:#eef2f5;--mut:#9aa8b5;--ln:#2a3844;--ac:#ef3d57;--acb:#fff;--gold:#e3b53f;--sil:#a9b4bf;--brz:#cf8a4f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,system-ui,sans-serif;padding-bottom:72px}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;letter-spacing:.2px}
+header{background:var(--ink);color:var(--bg);padding:14px 16px;border-bottom:4px solid var(--ac)}
+header h1{font-size:24px;line-height:1.1}header p{margin:2px 0 0;font-size:13px;opacity:.75}
+main{max-width:980px;margin:0 auto;padding:14px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:14px 2px;font:600 13px Barlow,sans-serif;cursor:pointer}
+nav button.on{color:var(--ac);box-shadow:inset 0 3px 0 var(--ac)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{flex:1}
+input,select,button.b{font:inherit;padding:9px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink);min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+button.b{cursor:pointer;font-weight:600}button.p{background:var(--ac);color:var(--acb);border-color:var(--ac)}button.d{color:var(--ac)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:12px}
+.box{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:12px}
+.ath{cursor:pointer;display:flex;gap:10px;align-items:center}
+.ava{width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:700 18px "Barlow Condensed",sans-serif;flex:none}
+img.ava{object-fit:cover}
+.sb{display:inline-block;width:34px;height:8px;border-radius:2px;border:1px solid var(--ln);vertical-align:middle;margin-right:4px}
+.mut{color:var(--mut);font-size:13px}
+.med{display:inline-flex;gap:3px;align-items:center;font-weight:600;margin-right:8px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.stats b{display:block;font:700 34px/1 "Barlow Condensed",sans-serif;color:var(--ac)}
+h2{font-size:22px;margin:18px 0 8px}
+.bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}.bar i{display:block;height:14px;background:var(--ac);border-radius:2px;min-width:2px}
+.tl{border-left:3px solid var(--ln);margin:8px 0 0 6px;padding-left:12px}
+.tl div{margin-bottom:10px;position:relative}.tl div:before{content:"";position:absolute;left:-18px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--ac)}
+dialog{border:0;border-radius:10px;padding:16px;width:min(560px,94vw);max-height:90vh;background:var(--sf);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+label{display:block;font-size:13px;color:var(--mut);margin-top:8px}label input,label select{width:100%;display:block;margin-top:2px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick{display:flex;gap:10px;align-items:center;padding:10px;border-bottom:1px solid var(--ln)}
+.pick input{width:20px;height:20px;flex:none}.rk{font:700 20px "Barlow Condensed",sans-serif;width:26px;color:var(--mut)}
+.pt{margin-left:auto;font:700 20px "Barlow Condensed",sans-serif;color:var(--ac);text-align:right}
+.sel{position:sticky;top:0;background:var(--sf);border:2px solid var(--ac);border-radius:8px;padding:12px;margin-bottom:12px;z-index:2}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:6px 8px;border-bottom:1px solid var(--ln);text-align:left;white-space:nowrap}
+</style>
+<script>
+/* ISI DENGAN KONFIGURASI FIREBASE ANDA (Project settings > Your apps > Web app) */
+window.FIREBASE_CONFIG={apiKey:"ISI_API_KEY",authDomain:"ISI_PROJECT_ID.firebaseapp.com",projectId:"ISI_PROJECT_ID",appId:"ISI_APP_ID"};
+window.NEEDLOGIN=!window.FIREBASE_CONFIG.apiKey.startsWith("ISI");
+</script>
+</head>
+<body>
+<header><button id="lo" class="b" hidden style="float:right" onclick="FB.logout()">Keluar</button><h1>Database Atlet BKC</h1><p>Bidang Prestasi · Pengurus Cabang Kabupaten Bogor</p></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+<dialog id="dlg"></dialog>
+<script>
+const TK={Kabupaten:1,Provinsi:2,Nasional:3,Internasional:4},MD={Emas:5,Perak:3,Perunggu:2,Partisipasi:1};
+const MC={Emas:"var(--gold)",Perak:"var(--sil)",Perunggu:"var(--brz)"};
+const SB={Putih:"#f4f4f4",Kuning:"#f2c230",Oranye:"#f08a24",Hijau:"#2e9b4f",Biru:"#2f6fd0",Ungu:"#7a45b8",Coklat:"#7a4a2a",Hitam:"#111"};
+const KEY="bkc-atlet-v1";let S={a:[]},tab="dash",q="",fk="",sel=new Set(),F={g:"",k:"",kl:""};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function seed(){const r=(e,t,y,k,m)=>({id:uid(),event:e,tingkat:t,tahun:y,kat:k,medali:m});
+return [
+{id:uid(),nama:"Raka Pratama",gender:"Putra",lahir:"2008-03-14",dojo:"Dojo Cibinong",sabuk:"Hitam",kat:"Kumite",kelas:"-67 kg",results:[r("Kejurkab Bogor","Kabupaten",2021,"Kumite","Perak"),r("Kejurprov Jabar","Provinsi",2023,"Kumite","Perunggu"),r("Kejurprov Jabar","Provinsi",2024,"Kumite","Emas"),r("Kejurnas Junior","Nasional",2025,"Kumite","Perunggu")]},
+{id:uid(),nama:"Nadia Putri",gender:"Putri",lahir:"2009-07-02",dojo:"Dojo Cibinong",sabuk:"Coklat",kat:"Kata",kelas:"Kata Perorangan",results:[r("Kejurkab Bogor","Kabupaten",2022,"Kata","Emas"),r("Kejurkab Bogor","Kabupaten",2023,"Kata","Emas"),r("Kejurprov Jabar","Provinsi",2024,"Kata","Perak"),r("Kejurnas Junior","Nasional",2025,"Kata","Partisipasi")]},
+{id:uid(),nama:"Fajar Ramadhan",gender:"Putra",lahir:"2007-11-21",dojo:"Dojo Cileungsi",sabuk:"Hitam",kat:"Kumite",kelas:"-75 kg",results:[r("Kejurprov Jabar","Provinsi",2022,"Kumite","Perunggu"),r("Kejurnas Junior","Nasional",2024,"Kumite","Perak"),r("Kejurkab Bogor","Kabupaten",2025,"Kumite","Emas")]},
+{id:uid(),nama:"Salsabila Aulia",gender:"Putri",lahir:"2010-01-30",dojo:"Dojo Parung",sabuk:"Hijau",kat:"Kumite",kelas:"-50 kg",results:[r("Kejurkab Bogor","Kabupaten",2024,"Kumite","Perunggu"),r("Kejurkab Bogor","Kabupaten",2025,"Kumite","Perak")]},
+{id:uid(),nama:"Dimas Saputra",gender:"Putra",lahir:"2011-05-09",dojo:"Dojo Gunung Putri",sabuk:"Biru",kat:"Kata",kelas:"Kata Perorangan",results:[r("Kejurkab Bogor","Kabupaten",2025,"Kata","Partisipasi")]}
+]}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&d.a){S=d;return}}catch(e){}S={a:seed()};save()}
+let DB=null,PH=null,tm;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}clearTimeout(tm);tm=setTimeout(()=>{if(DB)DB.set({json:JSON.stringify(S)}).catch(()=>{})},600)}
+function setS(x){S=x}
+function setDB(x){DB=x}
+function initDb(){}
+const FOTO={};
+const av=a=>FOTO[a.id]?`<img class="ava" src="${FOTO[a.id]}" alt="">`:`<div class="ava">${esc(ini(a.nama))}</div>`;
+const csv=r=>r.map(x=>x.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+function dl(name,data){const u=URL.createObjectURL(new Blob([data],{type:"text/plain"}));const l=document.createElement("a");l.href=u;l.download=name;l.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+function exportCSV(){dl("bkc-atlet.csv",csv([["Nama","Gender","Lahir","Dojo","Sabuk","Kategori","Kelas","BB","TB","HP","Status","Emas","Perak","Perunggu","Poin"],...S.a.map(a=>{const c=cnt(a);return [a.nama,a.gender,a.lahir,a.dojo,a.sabuk,a.kat,a.kelas,a.bb,a.tb,a.hp,a.status||"Aktif",c.Emas,c.Perak,c.Perunggu,pts(a)]})]))}
+function clearAll(){if(confirm("Hapus SEMUA data atlet? Tindakan ini berlaku untuk semua pengurus.")){S={a:[]};sel.clear();save();render()}}
+function foto(id){if(!window.FB||!FB.putFoto){alert("Foto tersedia setelah database online diatur.");return}const i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{const im=new Image;im.onload=async()=>{try{const c=document.createElement("canvas"),k=Math.min(1,256/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);await FB.putFoto(id,c.toDataURL("image/jpeg",.7));render();detail(id)}catch(e){alert("Foto gagal diunggah.")}};im.src=URL.createObjectURL(i.files[0])};i.click()}
+function loginHtml(){return `<div class="box" style="max-width:380px;margin:30px auto"><h2 style="margin-top:0">Masuk pengurus</h2><label>Email<input id="lm" type="email" autocomplete="username"></label><label>Kata sandi<input id="lp" type="password" autocomplete="current-password"></label><div id="le" style="color:var(--ac);margin:6px 0"></div><button class="b p" style="width:100%" onclick="doLogin()">Masuk</button></div>`}
+function doLogin(){le.textContent="";FB.login(lm.value.trim(),lp.value).catch(()=>{le.textContent="Email atau kata sandi salah."})}
+const EV=()=>S.ev||(S.ev=[]);
+function syncEvt(){S.a.forEach(a=>a.results=a.results.filter(r=>!r.evid));EV().forEach(e=>(e.peserta||[]).forEach(p=>{const a=S.a.find(x=>x.id==p.aid);if(a&&p.hasil)a.results.push({id:uid(),event:e.nama,tingkat:e.tingkat,tahun:e.tanggal?+e.tanggal.slice(0,4):new Date().getFullYear(),kat:p.kat,medali:p.hasil,evid:e.id})}))}
+function vEvt(){const L=[...EV()].sort((x,y)=>(y.tanggal||"").localeCompare(x.tanggal||""));
+ return `<div class="row"><h2 class="sp" style="margin:0">Event kejuaraan</h2><button class="b p" onclick="formEvt()">Tambah event</button></div>`+(L.map(e=>{const P=e.peserta||[];return `<div class="box" style="margin-top:10px"><div class="row"><b class="sp">${esc(e.nama)}</b><span class="mut">${e.selesai?"Selesai":"Rencana"}</span></div><div class="mut">${esc(e.tingkat)} · ${esc(e.tanggal||"tanggal belum diisi")}${e.lokasi?" · "+esc(e.lokasi):""}</div><div style="margin:6px 0">${P.length} atlet${P.length?": "+P.map(p=>{const a=S.a.find(x=>x.id==p.aid);return a?esc(a.nama)+(p.hasil?" ("+p.hasil+")":""):""}).filter(Boolean).join(", "):" belum dipilih"}</div><div class="row"><button class="b" onclick="pesEvt('${e.id}')">Pilih atlet</button><button class="b p" onclick="hasEvt('${e.id}')" ${P.length?"":"disabled"}>Isi hasil</button><button class="b" onclick="formEvt('${e.id}')">Ubah</button><button class="b d" onclick="delEvt('${e.id}')">Hapus</button></div></div>`}).join("")||'<div class="box mut" style="margin-top:10px">Belum ada event. Tekan Tambah event, lalu pilih atlet yang akan berangkat.</div>')}
+function formEvt(id){const e=EV().find(x=>x.id==id)||{nama:"",tingkat:"Kabupaten",tanggal:"",lokasi:""};
+ D.innerHTML=`<h2>${id?"Ubah event":"Tambah event"}</h2><label>Nama event<input id="vn" value="${esc(e.nama)}"></label><div class="f2"><label>Tingkat<select id="vt">${Object.keys(TK).map(k=>`<option ${k==e.tingkat?"selected":""}>${k}</option>`).join("")}</select></label><label>Tanggal<input id="vd" type="date" value="${esc(e.tanggal)}"></label></div><label>Lokasi<input id="vl" value="${esc(e.lokasi)}"></label><div class="row" style="margin-top:14px"><button class="b p sp" onclick="saveEvt('${id||""}')">Simpan</button><button class="b" onclick="D.close()">Batal</button></div>`;if(!D.open)D.showModal()}
+function saveEvt(id){const n=vn.value.trim();if(!n){alert("Isi nama event.");return}const v={nama:n,tingkat:vt.value,tanggal:vd.value,lokasi:vl.value.trim()};if(id){Object.assign(EV().find(x=>x.id==id),v);syncEvt()}else EV().push({id:uid(),peserta:[],selesai:false,...v});save();D.close();render()}
+function pesEvt(id){const e=EV().find(x=>x.id==id),on=new Set((e.peserta||[]).map(p=>p.aid));
+ const A=S.a.filter(a=>(a.status||"Aktif")=="Aktif"||on.has(a.id)).sort((x,y)=>pts(y)-pts(x));
+ D.innerHTML=`<h2>Pilih atlet</h2><div class="mut">${esc(e.nama)}</div><div class="row" style="margin:8px 0"><button class="b" onclick="D.querySelectorAll('input[data-p]').forEach(i=>i.checked=sel.has(i.dataset.p))">Pakai pilihan Seleksi tim</button></div>`+A.map(a=>`<label class="pick" style="color:var(--ink);margin:0"><input type="checkbox" data-p="${a.id}" ${on.has(a.id)?"checked":""}><div><b>${esc(a.nama)}</b><div class="mut">${esc(a.kat)} ${esc(a.kelas)} · ${esc(a.dojo)}</div></div><div class="pt">${pts(a)}</div></label>`).join("")+`<div class="row" style="margin-top:12px"><button class="b p sp" onclick="savePes('${id}')">Simpan peserta</button><button class="b" onclick="D.close()">Batal</button></div>`;if(!D.open)D.showModal()}
+function savePes(id){const e=EV().find(x=>x.id==id),old=e.peserta||[];e.peserta=[...D.querySelectorAll("input[data-p]:checked")].map(i=>{const p=old.find(o=>o.aid==i.dataset.p),a=S.a.find(x=>x.id==i.dataset.p);return p||{aid:a.id,kat:a.kat,hasil:""}});syncEvt();save();D.close();render()}
+function hasEvt(id){const e=EV().find(x=>x.id==id);
+ D.innerHTML=`<h2>Hasil event</h2><div class="mut">${esc(e.nama)} · ${esc(e.tingkat)}</div>`+e.peserta.map(p=>{const a=S.a.find(x=>x.id==p.aid);return a?`<div class="row" style="margin:8px 0"><span class="sp">${esc(a.nama)} <span class="mut">${esc(p.kat)} ${esc(a.kelas)}</span></span><select data-h="${a.id}"><option value="">Belum ada hasil</option>${Object.keys(MD).map(k=>`<option ${k==p.hasil?"selected":""}>${k}</option>`).join("")}</select></div>`:""}).join("")+`<label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="hs" style="width:auto" ${e.selesai?"checked":""}>Tandai event selesai</label><div class="row" style="margin-top:12px"><button class="b p sp" onclick="saveHas('${id}')">Simpan hasil</button><button class="b" onclick="D.close()">Batal</button></div>`;D.showModal()}
+function saveHas(id){const e=EV().find(x=>x.id==id);D.querySelectorAll("select[data-h]").forEach(s=>{e.peserta.find(p=>p.aid==s.dataset.h).hasil=s.value});e.selesai=hs.checked;syncEvt();save();D.close();render()}
+function delEvt(id){if(!confirm("Hapus event ini? Hasil atlet dari event ini ikut terhapus."))return;S.ev=EV().filter(e=>e.id!=id);syncEvt();save();render()}
+function prog(a){const Y={},M={Emas:0,Perak:0,Perunggu:0,Partisipasi:0};a.results.forEach(r=>{Y[r.tahun]=(Y[r.tahun]||0)+MD[r.medali]*TK[r.tingkat];M[r.medali]++});
+ const ys=Object.keys(Y).sort();if(!ys.length)return'<h2>Grafik perkembangan</h2><div class="mut">Grafik muncul setelah ada hasil kejuaraan.</div>';
+ const W=320,H=150,l=28,b=24,t=16,m=Math.max(...Object.values(Y))||1,n=ys.length,st=(W-l-10)/n,bw=Math.min(36,st*.6),px=i=>l+st*i+st/2,py=v=>t+(H-t-b)*(1-v/m);
+ const bars=ys.map((y,i)=>`<rect x="${px(i)-bw/2}" y="${py(Y[y])}" width="${bw}" height="${H-b-py(Y[y])}" fill="var(--ac)" opacity=".28"/><text x="${px(i)}" y="${py(Y[y])-4}" text-anchor="middle" font-size="11" fill="var(--ink)">${Y[y]}</text><text x="${px(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--mut)">${y}</text>`).join("");
+ const line=n>1?`<polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="${ys.map((y,i)=>px(i)+","+py(Y[y])).join(" ")}"/>`:"";
+ const dots=ys.map((y,i)=>`<circle cx="${px(i)}" cy="${py(Y[y])}" r="4" fill="var(--ac)"/>`).join("");
+ const tr=n>1?(Y[ys[n-1]]>Y[ys[n-2]]?"naik":Y[ys[n-1]]<Y[ys[n-2]]?"turun":"tetap"):"";
+ const mt=Math.max(...Object.values(M))||1,mb=Object.keys(M).map(k=>`<div class="bar"><span style="width:84px">${k}</span><i style="width:${M[k]/mt*55}%;background:${MC[k]||"var(--mut)"}"></i>${M[k]}</div>`).join("");
+ return `<h2>Grafik perkembangan</h2><div class="box"><div class="mut">Poin per tahun${tr?" · tren terakhir: "+tr:""}</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Grafik poin per tahun"><line x1="${l}" x2="${W-6}" y1="${H-b}" y2="${H-b}" stroke="var(--ln)"/>${bars}${line}${dots}</svg></div><div class="box" style="margin-top:8px"><div class="mut">Komposisi hasil</div>${mb}</div>`}
+function progOld(a){const Y={};a.results.forEach(r=>Y[r.tahun]=(Y[r.tahun]||0)+MD[r.medali]*TK[r.tingkat]);const ys=Object.keys(Y).sort();if(!ys.length)return"";const m=Math.max(...Object.values(Y))||1;return `<h2>Perkembangan prestasi</h2>`+ys.map(y=>`<div class="bar"><span style="width:38px">${y}</span><i style="width:${Y[y]/m*60}%"></i>${Y[y]} poin</div>`).join("")}
+function vEv(){const G={};S.a.forEach(a=>a.results.forEach(r=>{const k=r.event+"|"+r.tahun+"|"+r.tingkat;(G[k]=G[k]||{e:r.event,y:r.tahun,t:r.tingkat,l:[]}).l.push({a,r})}));
+ const L=Object.values(G).sort((x,y)=>y.y-x.y||x.e.localeCompare(y.e));
+ return `<div class="row"><h2 class="sp" style="margin:0">Riwayat kejuaraan</h2><button class="b p" onclick="formEv()">Input hasil kejuaraan</button></div>`+(L.map(g=>`<div class="box" style="margin-top:10px"><b>${esc(g.e)}</b> · ${g.y}<div class="mut">${esc(g.t)} · ${g.l.length} atlet</div>${g.l.sort((x,y)=>MD[y.r.medali]-MD[x.r.medali]).map(({a,r})=>`<div class="pick" style="cursor:pointer;padding:6px 0" onclick="detail('${a.id}')"><i class="dot" style="background:${MC[r.medali]||"var(--ln)"}"></i><span>${esc(a.nama)} <span class="mut">${esc(r.kat)}</span></span><span class="pt" style="font-size:15px">${esc(r.medali)}</span></div>`).join("")}</div>`).join("")||'<div class="box mut" style="margin-top:10px">Belum ada kejuaraan. Tekan Input hasil kejuaraan untuk mencatat hasil beberapa atlet sekaligus.</div>')}
+function formEv(){const A=S.a.filter(a=>(a.status||"Aktif")=="Aktif");
+ D.innerHTML=`<h2>Input hasil kejuaraan</h2><label>Nama kejuaraan<input id="ee" placeholder="Kejurprov Jabar"></label><div class="f2"><label>Tingkat<select id="et">${Object.keys(TK).map(k=>`<option>${k}</option>`).join("")}</select></label><label>Tahun<input id="ey" type="number" value="${new Date().getFullYear()}"></label></div><p class="mut">Pilih hasil untuk atlet yang berangkat. Biarkan Tidak ikut bila tidak berangkat.</p>`+A.map(a=>`<div class="row" style="margin:6px 0"><span class="sp">${esc(a.nama)} <span class="mut">${esc(a.kat)}</span></span><select data-a="${a.id}"><option value="">Tidak ikut</option>${Object.keys(MD).map(k=>`<option>${k}</option>`).join("")}</select></div>`).join("")+`<div class="row" style="margin-top:12px"><button class="b p sp" onclick="saveEv()">Simpan hasil</button><button class="b" onclick="D.close()">Batal</button></div>`;D.showModal()}
+function saveEv(){const e=ee.value.trim();if(!e){alert("Isi nama kejuaraan.");return}let n=0;D.querySelectorAll("select[data-a]").forEach(s=>{if(!s.value)return;const a=S.a.find(x=>x.id==s.dataset.a);a.results.push({id:uid(),event:e,tingkat:et.value,tahun:+ey.value,kat:a.kat,medali:s.value});n++});if(!n){alert("Pilih hasil minimal satu atlet.");return}save();D.close();render()}
+const pts=a=>a.results.reduce((s,r)=>s+MD[r.medali]*TK[r.tingkat],0);
+const cnt=a=>{const c={Emas:0,Perak:0,Perunggu:0};a.results.forEach(r=>{if(c[r.medali]!==undefined)c[r.medali]++});return c};
+const age=a=>a.lahir?Math.floor((Date.now()-new Date(a.lahir))/31557600000):"-";
+const medHtml=a=>{const c=cnt(a);return Object.keys(c).map(k=>`<span class="med"><i class="dot" style="background:${MC[k]}"></i>${c[k]}</span>`).join("")};
+const sabuk=s=>`<i class="sb" style="background:${SB[s]||"#ccc"}"></i>${esc(s)}`;
+const ini=n=>n.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+
+function render(){
+ document.getElementById("nav").innerHTML=[["dash","Ringkasan"],["ath","Atlet"],["evt","Event"],["ev","Kejuaraan"],["pick","Seleksi tim"]].map(([k,l])=>`<button class="${tab==k?"on":""}" onclick="go('${k}')">${l}</button>`).join("");
+ const el=document.getElementById("app");if(window.NEEDLOGIN){document.getElementById("nav").innerHTML="";el.innerHTML=loginHtml();return}
+ el.innerHTML=tab=="dash"?vDash():tab=="ath"?vAth():tab=="ev"?vEv():tab=="evt"?vEvt():vPick();
+}
+function go(t){tab=t;render();scrollTo(0,0)}
+
+function vDash(){
+ const A=S.a,tot={Emas:0,Perak:0,Perunggu:0},by={};
+ A.forEach(a=>a.results.forEach(r=>{if(tot[r.medali]!==undefined){tot[r.medali]++;by[r.tahun]=(by[r.tahun]||0)+1}}));
+ const yrs=Object.keys(by).sort(),mx=Math.max(1,...Object.values(by));
+ const top=[...A].sort((a,b)=>pts(b)-pts(a)).slice(0,5);
+ return `<div class="stats">
+ <div class="box"><b>${A.length}</b>Atlet terdaftar</div>
+ <div class="box"><b>${A.reduce((s,a)=>s+a.results.length,0)}</b>Partisipasi kejuaraan</div>
+ <div class="box"><b style="color:var(--gold)">${tot.Emas}</b>Emas</div>
+ <div class="box"><b style="color:var(--sil)">${tot.Perak}</b>Perak</div>
+ <div class="box"><b style="color:var(--brz)">${tot.Perunggu}</b>Perunggu</div></div>
+ <h2>Perolehan medali per tahun</h2><div class="box">${yrs.length?yrs.map(y=>`<div class="bar"><span style="width:38px">${y}</span><i style="width:${by[y]/mx*70}%"></i>${by[y]}</div>`).join(""):'<span class="mut">Belum ada medali. Tambahkan hasil kejuaraan pada profil atlet.</span>'}</div>
+ <h2>Atlet berprestasi</h2><div class="box">${top.map((a,i)=>`<div class="pick" onclick="detail('${a.id}')" style="cursor:pointer"><span class="rk">${i+1}</span><div><b>${esc(a.nama)}</b><div class="mut">${esc(a.dojo)} · ${esc(a.kat)} ${esc(a.kelas)}</div></div><div class="pt">${pts(a)}<div class="mut" style="font:12px Barlow">poin</div></div></div>`).join("")||'<span class="mut">Belum ada atlet.</span>'}</div>
+ <h2>Cara hitung poin</h2><div class="box mut">Poin = nilai medali × bobot tingkat. Emas 5, Perak 3, Perunggu 2, Partisipasi 1. Bobot: Kabupaten ×1, Provinsi ×2, Nasional ×3, Internasional ×4.</div>
+ <div class="row" style="margin-top:16px"><button class="b" onclick="exportCSV()">Unduh CSV</button><button class="b" onclick="exportJSON()">Cadangkan data</button><button class="b" onclick="document.getElementById('imp').click()">Pulihkan data</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(this)"><button class="b d" onclick="resetAll()">Reset ke contoh</button><button class="b d" onclick="clearAll()">Hapus semua data</button></div>
+ <p class="mut">Data disimpan bersama: pengurus yang diberi akses kontributor bisa menambah dan mengubah data, dan perubahan muncul di semua perangkat. Pengurus yang hanya melihat tidak bisa mengubah data. Data contoh bisa dihapus lewat Hapus semua data sebelum mulai input data asli.</p>`;
+}
+
+function vAth(){
+ const L=S.a.filter(a=>(!q||(a.nama+a.dojo).toLowerCase().includes(q.toLowerCase()))&&(!fk||a.kat==fk));
+ return `<div class="row"><input id="q" placeholder="Cari nama atau dojo" value="${esc(q)}" oninput="q=this.value;keep()" class="sp"><select onchange="fk=this.value;render()"><option value="">Semua</option><option ${fk=="Kata"?"selected":""}>Kata</option><option ${fk=="Kumite"?"selected":""}>Kumite</option></select><button class="b p" onclick="formAth()">Tambah atlet</button></div>
+ <div class="grid" id="list">${listHtml(L)}</div>`;
+}
+function listHtml(L){return L.map(a=>`<div class="box ath" onclick="detail('${a.id}')">${av(a)}<div><b>${esc(a.nama)}</b><div class="mut">${esc(a.dojo)} · ${age(a)} th</div><div>${sabuk(a.sabuk)}${(a.status||"Aktif")=="Nonaktif"?' <span class="mut">(nonaktif)</span>':""}</div><div>${medHtml(a)}<span class="mut">${pts(a)} poin</span></div></div></div>`).join("")||'<div class="box mut">Atlet tidak ditemukan. Ubah kata kunci atau tambah atlet baru.</div>'}
+function keep(){const L=S.a.filter(a=>(!q||(a.nama+a.dojo).toLowerCase().includes(q.toLowerCase()))&&(!fk||a.kat==fk));document.getElementById("list").innerHTML=listHtml(L)}
+
+function vPick(){
+ const L=S.a.filter(a=>(a.status||"Aktif")=="Aktif"&&(!F.g||a.gender==F.g)&&(!F.k||a.kat==F.k)&&(!F.kl||a.kelas.toLowerCase().includes(F.kl.toLowerCase()))).sort((a,b)=>pts(b)-pts(a));
+ const chosen=S.a.filter(a=>sel.has(a.id));
+ return `<h2 style="margin-top:4px">Seleksi tim kejuaraan intern</h2>
+ <div class="sel"><b>${chosen.length} atlet dipilih</b>${chosen.length?`<div class="mut">${chosen.map(a=>esc(a.nama)).join(", ")}</div><div class="row" style="margin-top:8px"><button class="b p" onclick="copyTeam()">Salin daftar tim</button><button class="b" onclick="sel.clear();render()">Kosongkan</button></div>`:'<div class="mut">Centang atlet di bawah untuk menyusun daftar tim.</div>'}</div>
+ <div class="row"><select onchange="F.g=this.value;render()"><option value="">Putra &amp; putri</option><option ${F.g=="Putra"?"selected":""}>Putra</option><option ${F.g=="Putri"?"selected":""}>Putri</option></select>
+ <select onchange="F.k=this.value;render()"><option value="">Kata &amp; kumite</option><option ${F.k=="Kata"?"selected":""}>Kata</option><option ${F.k=="Kumite"?"selected":""}>Kumite</option></select>
+ <input class="sp" placeholder="Kelas, mis. -67" value="${esc(F.kl)}" onchange="F.kl=this.value;render()"></div>
+ <div class="box" style="margin-top:10px;padding:0">${L.map((a,i)=>`<label class="pick" style="color:var(--ink);margin:0"><span class="rk">${i+1}</span><input type="checkbox" ${sel.has(a.id)?"checked":""} onchange="tog('${a.id}')"><div><b>${esc(a.nama)}</b><div class="mut">${esc(a.kat)} ${esc(a.kelas)} · ${esc(a.dojo)}</div><div>${sabuk(a.sabuk)} ${medHtml(a)}</div></div><div class="pt">${pts(a)}<div class="mut" style="font:12px Barlow">poin</div></div></label>`).join("")||'<div class="mut" style="padding:12px">Tidak ada atlet yang cocok dengan filter.</div>'}</div>`;
+}
+function tog(id){sel.has(id)?sel.delete(id):sel.add(id);render()}
+function copyTeam(){const t="Daftar tim BKC Kab. Bogor\n"+S.a.filter(a=>sel.has(a.id)).map((a,i)=>`${i+1}. ${a.nama} (${a.kat} ${a.kelas}, ${a.dojo}, ${pts(a)} poin)`).join("\n");
+ try{navigator.clipboard.writeText(t).then(()=>alert("Daftar tim disalin."),()=>prompt("Salin daftar:",t))}catch(e){prompt("Salin daftar:",t)}}
+
+const D=document.getElementById("dlg");
+function detail(id){
+ const a=S.a.find(x=>x.id==id);if(!a)return;
+ const rs=[...a.results].sort((x,y)=>y.tahun-x.tahun);
+ D.innerHTML=`<div class="row"><h2 style="margin:0" class="sp">${esc(a.nama)}</h2><button class="b" onclick="D.close()">Tutup</button></div>
+ <div class="row" style="margin-top:8px">${av(a)}<div><div class="mut">${esc(a.gender)} · ${age(a)} th · ${esc(a.dojo)}</div><div>${sabuk(a.sabuk)} · ${esc(a.kat)} ${esc(a.kelas)}</div></div></div><div class="mut">BB ${esc(a.bb||"-")} kg · TB ${esc(a.tb||"-")} cm · HP ${esc(a.hp||"-")} · ${esc(a.status||"Aktif")}</div>${a.catatan?`<div class="box" style="margin-top:8px">${esc(a.catatan)}</div>`:""}
+ <div style="margin:8px 0">${medHtml(a)}<b style="color:var(--ac)">${pts(a)} poin</b></div>
+ <div class="row"><button class="b" onclick="formAth('${a.id}')">Ubah profil</button><button class="b" onclick="foto('${a.id}')">Ganti foto</button><button class="b d" onclick="delAth('${a.id}')">Hapus atlet</button></div>
+ ${prog(a)}<h2>Perjalanan kejuaraan</h2>
+ <div class="tl">${rs.map(r=>`<div><b>${esc(r.event)}</b> · ${r.tahun}<br><span class="med"><i class="dot" style="background:${MC[r.medali]||"var(--ln)"}"></i>${esc(r.medali)}</span><span class="mut">${esc(r.tingkat)} · ${esc(r.kat)} · ${MD[r.medali]*TK[r.tingkat]} poin</span> <a href="#" onclick="delRes('${a.id}','${r.id}');return false" style="color:var(--ac)">hapus</a></div>`).join("")||'<span class="mut">Belum ada hasil kejuaraan.</span>'}</div>
+ <h2>Tambah hasil kejuaraan</h2>
+ <label>Nama kejuaraan<input id="re" placeholder="Kejurprov Jabar"></label>
+ <div class="f2"><label>Tingkat<select id="rt">${Object.keys(TK).map(k=>`<option>${k}</option>`).join("")}</select></label><label>Tahun<input id="ry" type="number" value="${new Date().getFullYear()}"></label>
+ <label>Kategori<select id="rk"><option ${a.kat=="Kata"?"selected":""}>Kata</option><option ${a.kat=="Kumite"?"selected":""}>Kumite</option></select></label><label>Hasil<select id="rm">${Object.keys(MD).map(k=>`<option>${k}</option>`).join("")}</select></label></div>
+ <button class="b p" style="margin-top:12px;width:100%" onclick="addRes('${a.id}')">Simpan hasil</button>`;
+ D.showModal();
+}
+function addRes(id){const a=S.a.find(x=>x.id==id),e=document.getElementById("re").value.trim();if(!e){alert("Isi nama kejuaraan.");return}
+ a.results.push({id:uid(),event:e,tingkat:rt.value,tahun:+ry.value,kat:rk.value,medali:rm.value});save();render();detail(id)}
+function delRes(id,rid){const a=S.a.find(x=>x.id==id),r0=a.results.find(r=>r.id==rid);if(r0&&r0.evid){const e=EV().find(x=>x.id==r0.evid),p=e&&e.peserta.find(p=>p.aid==id);if(p)p.hasil=""}a.results=a.results.filter(r=>r.id!=rid);save();render();detail(id)}
+function delAth(id){if(!confirm("Hapus atlet beserta seluruh riwayatnya?"))return;S.a=S.a.filter(x=>x.id!=id);sel.delete(id);save();D.close();render()}
+function formAth(id){
+ const a=S.a.find(x=>x.id==id)||{nama:"",gender:"Putra",lahir:"",dojo:"",sabuk:"Putih",kat:"Kumite",kelas:"",bb:"",tb:"",hp:"",status:"Aktif",catatan:""};
+ const o=(L,v)=>L.map(x=>`<option ${x==v?"selected":""}>${x}</option>`).join("");
+ D.innerHTML=`<h2>${id?"Ubah profil atlet":"Tambah atlet"}</h2>
+ <label>Nama lengkap<input id="fn" value="${esc(a.nama)}"></label>
+ <div class="f2"><label>Jenis kelamin<select id="fg">${o(["Putra","Putri"],a.gender)}</select></label><label>Tanggal lahir<input id="fl" type="date" value="${a.lahir}"></label>
+ <label>Dojo<input id="fd" value="${esc(a.dojo)}"></label><label>Sabuk<select id="fs">${o(Object.keys(SB),a.sabuk)}</select></label>
+ <label>Kategori utama<select id="fk2">${o(["Kata","Kumite"],a.kat)}</select></label><label>Kelas<input id="fc" placeholder="-67 kg" value="${esc(a.kelas)}"></label></div>
+ <div class="f2"><label>Berat (kg)<input id="fb" type="number" value="${esc(a.bb)}"></label><label>Tinggi (cm)<input id="ft" type="number" value="${esc(a.tb)}"></label><label>No. HP / wali<input id="fh" value="${esc(a.hp)}"></label><label>Status<select id="fz">${o(["Aktif","Nonaktif"],a.status)}</select></label></div><label>Catatan pelatih<input id="fm" value="${esc(a.catatan)}"></label>
+ <div class="row" style="margin-top:14px"><button class="b p sp" onclick="saveAth('${id||""}')">Simpan</button><button class="b" onclick="D.close()">Batal</button></div>`;
+ if(!D.open)D.showModal();
+}
+function saveAth(id){const n=fn.value.trim();if(!n){alert("Isi nama atlet.");return}
+ const v={nama:n,gender:fg.value,lahir:fl.value,dojo:fd.value.trim(),sabuk:fs.value,kat:fk2.value,kelas:fc.value.trim(),bb:fb.value,tb:ft.value,hp:fh.value.trim(),status:fz.value,catatan:fm.value.trim()};
+ if(id)Object.assign(S.a.find(x=>x.id==id),v);else S.a.push({id:uid(),results:[],...v});
+ save();D.close();render()}
+
+function exportJSON(){dl("bkc-atlet.json",JSON.stringify(S,null,1))}
+function importJSON(i){const f=i.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.a)throw 0;S=d;save();render()}catch(e){alert("File tidak valid.")}})}
+function resetAll(){if(confirm("Ganti semua data dengan data contoh?")){S={a:seed()};sel.clear();save();render()}}
+load();render();initDb();
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot,collection} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const C=window.FIREBASE_CONFIG,hp=document.querySelector("header p"),base=hp.textContent;
+if(C.apiKey&&!C.apiKey.startsWith("ISI")){
+const app=initializeApp(C),auth=getAuth(app),fs=getFirestore(app),ref=doc(fs,"app","state"),lo=document.getElementById("lo");let un=[];
+window.FB={login:(e,p)=>signInWithEmailAndPassword(auth,e,p),logout:()=>signOut(auth),putFoto:async(id,d)=>{await setDoc(doc(fs,"foto",id),{d});FOTO[id]=d}};
+onAuthStateChanged(auth,async u=>{un.forEach(f=>f());un=[];setDB(null);lo.hidden=!u;
+ if(!u){window.NEEDLOGIN=true;try{localStorage.removeItem(KEY)}catch(e){}hp.textContent=base;render();return}
+ window.NEEDLOGIN=false;
+ try{const s=await getDoc(ref);
+  if(s.exists()){setS(JSON.parse(s.data().json))}else{setS({a:[],ev:[]});await setDoc(ref,{json:JSON.stringify(S)})}
+  setDB({set:o=>setDoc(ref,o)});hp.textContent=base+" \u00b7 Data bersama aktif";render();
+  un.push(onSnapshot(ref,x=>{if(!x.exists()||x.metadata.hasPendingWrites||D.open)return;const j=x.data().json;if(j!==JSON.stringify(S)){setS(JSON.parse(j));render()}}));
+  un.push(onSnapshot(collection(fs,"foto"),q=>{q.docs.forEach(d=>FOTO[d.id]=d.data().d);if(!D.open)render()}));
+ }catch(e){hp.textContent=base+" \u00b7 Gagal terhubung ke database";render()}
+});
+}else{hp.textContent=base+" \u00b7 Mode lokal (database belum diatur)"}
+</script>
+</body>
+</html>
