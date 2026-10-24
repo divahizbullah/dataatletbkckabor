@@ -18,7 +18,7 @@ header{background:var(--ink);color:var(--bg);padding:14px 16px;border-bottom:4px
 header h1{font-size:24px;line-height:1.1}header p{margin:2px 0 0;font-size:13px;opacity:.75}
 main{max-width:980px;margin:0 auto;padding:14px}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-nav button{flex:1;border:0;background:none;color:var(--mut);padding:14px 2px;font:600 13px Barlow,sans-serif;cursor:pointer}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:14px 2px;font:600 12px Barlow,sans-serif;cursor:pointer}
 nav button.on{color:var(--ac);box-shadow:inset 0 3px 0 var(--ac)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{flex:1}
 input,select,button.b{font:inherit;padding:9px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink);min-width:0}
@@ -80,7 +80,7 @@ function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&
 let DB=null,PH=null,tm;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}clearTimeout(tm);tm=setTimeout(()=>{if(DB)DB.set({json:JSON.stringify(S)}).catch(()=>{})},600)}
 function setS(x){S=x}
-let ROLE=null,LR="pelatih";const isAdm=()=>ROLE!=="pelatih";function setROLE(r){ROLE=r}
+let ROLE=null,LR="pelatih";const isAdm=()=>ROLE!=="pelatih";function setROLE(r){ROLE=r;if(r!=="admin"&&tab=="adm")tab="dash"}
 function setDB(x){DB=x}
 function initDb(){}
 const FOTO={};
@@ -132,9 +132,9 @@ const sabuk=s=>`<i class="sb" style="background:${SB[s]||"#ccc"}"></i>${esc(s)}`
 const ini=n=>n.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
 
 function render(){
- document.getElementById("nav").innerHTML=[["dash","Ringkasan"],["ath","Atlet"],["evt","Event"],["ev","Kejuaraan"],["pick","Seleksi tim"]].map(([k,l])=>`<button class="${tab==k?"on":""}" onclick="go('${k}')">${l}</button>`).join("");
+ document.getElementById("nav").innerHTML=[["dash","Ringkasan"],["ath","Atlet"],["evt","Event"],["ev","Kejuaraan"],["pick","Seleksi"],...(ROLE==="admin"?[["adm","Admin"]]:[])].map(([k,l])=>`<button class="${tab==k?"on":""}" onclick="go('${k}')">${l}</button>`).join("");
  const el=document.getElementById("app");if(window.NEEDLOGIN){document.getElementById("nav").innerHTML="";el.innerHTML="";showLogin();return}
- el.innerHTML=tab=="dash"?vDash():tab=="ath"?vAth():tab=="ev"?vEv():tab=="evt"?vEvt():vPick();
+ el.innerHTML=tab=="dash"?vDash():tab=="ath"?vAth():tab=="ev"?vEv():tab=="evt"?vEvt():tab=="adm"?vAdm():vPick();
 }
 function go(t){tab=t;render();scrollTo(0,0)}
 
@@ -257,26 +257,50 @@ function profil(){const m=window.ME||{};D.innerHTML=`<div class="row"><h2 class=
 async function pNama(){try{await FB.setName(pn.value.trim());pMsg("Nama disimpan.",1)}catch(e){pMsg(pErr(e))}}
 async function pEmail(){if(!po.value){pMsg("Isi kata sandi saat ini.");return}if(!pe.value.trim()){pMsg("Isi email baru.");return}try{await FB.setEmail(po.value,pe.value.trim());pMsg("Tautan verifikasi dikirim ke email baru. Email berubah setelah tautan itu dibuka.",1)}catch(e){pMsg(pErr(e))}}
 async function pPass(){if(!po.value){pMsg("Isi kata sandi saat ini.");return}if(pw.value.length<6){pMsg("Kata sandi baru minimal 6 karakter.");return}if(pw.value!==pw2.value){pMsg("Ulangi kata sandi baru tidak sama.");return}try{await FB.setPass(po.value,pw.value);pw.value=pw2.value=po.value="";pMsg("Kata sandi berhasil diganti.",1)}catch(e){pMsg(pErr(e))}}
+let USERS=null,UERR="";
+function vAdm(){if(ROLE!=="admin")return"";if(!window.FB||!FB.listUsers)return'<div class="box mut">Fitur ini membutuhkan database online.</div>';setTimeout(loadUsers,0);
+ return `<div class="row"><h2 class="sp" style="margin:0">Administrator</h2><button class="b p" onclick="formUser()">Tambah pelatih</button></div><div id="adm">${USERS?usersHtml():'<div class="box mut" style="margin-top:10px">Memuat daftar akun...</div>'}</div><p class="mut">Email dan kata sandi diganti pelatih sendiri lewat menu Profil. Jika pelatih lupa kata sandi, gunakan Reset sandi: tautan penggantian dikirim ke email pelatih.</p>`}
+async function loadUsers(){try{USERS=await FB.listUsers();UERR=""}catch(e){UERR=uErr(e)}const el=document.getElementById("adm");if(tab=="adm"&&!D.open&&el)el.innerHTML=UERR?`<div class="box" style="margin-top:10px;color:var(--ac)">${esc(UERR)}</div>`:usersHtml()}
+function usersHtml(){const L=[...USERS].sort((a,b)=>(a.role==b.role?0:a.role=="admin"?-1:1)||String(a.nama||a.email).localeCompare(String(b.nama||b.email)));
+ return L.map(u=>`<div class="box" style="margin-top:10px"><div class="row"><b class="sp">${esc(u.nama||"(tanpa nama)")}</b><span class="mut">${u.role=="admin"?"Admin":"Pelatih"}${u.aktif===false?" \u00b7 Nonaktif":""}</span></div><div class="mut">${esc(u.email)}</div>${u.role=="pelatih"?`<div class="row" style="margin-top:8px"><button class="b" onclick="formUser('${u.id}')">Ubah nama</button><button class="b" onclick="uReset('${u.id}')">Reset sandi</button><button class="b" onclick="uToggle('${u.id}')">${u.aktif===false?"Aktifkan":"Nonaktifkan"}</button><button class="b d" onclick="uDel('${u.id}')">Hapus akses</button></div>`:""}</div>`).join("")||'<div class="box mut" style="margin-top:10px">Belum ada akun.</div>'}
+const uErr=e=>{const c=e&&e.code||"";return c=="auth/email-already-in-use"||c=="auth/invalid-credential"||c=="auth/wrong-password"?"Email ini sudah terdaftar dengan kata sandi lain. Gunakan email lain, atau minta pelatih memakai Reset sandi.":c=="auth/weak-password"?"Kata sandi awal terlalu lemah (minimal 6 karakter).":c=="auth/invalid-email"?"Format email tidak valid.":c=="auth/operation-not-allowed"?"Pendaftaran akun dimatikan. Aktifkan Enable create (sign-up) di Firebase: Authentication > Settings > User actions.":c=="app/is-admin"?"Email ini milik akun admin.":c=="permission-denied"?"Tidak ada izin. Periksa Rules Firestore.":"Gagal: "+(c||e)};
+function formUser(id){const u=id?USERS.find(x=>x.id==id):{nama:"",email:""};
+ D.innerHTML=`<h2>${id?"Ubah nama pelatih":"Tambah pelatih"}</h2><label>Nama pelatih<input id="un" value="${esc(u.nama)}"></label>${id?`<div class="mut" style="margin-top:6px">${esc(u.email)}</div>`:`<label>Email<input id="ue" type="email" autocomplete="off"></label><label>Kata sandi awal (minimal 6 karakter)<input id="up" type="text" autocomplete="off"></label><p class="mut">Sampaikan email dan kata sandi ini kepada pelatih. Pelatih login lewat tombol Pelatih dan bisa menggantinya di menu Profil.</p>`}<div id="um" style="color:var(--ac);min-height:20px"></div><div class="row"><button class="b p sp" onclick="saveUser('${id||""}')">Simpan</button><button class="b" onclick="D.close()">Batal</button></div>`;D.showModal()}
+async function saveUser(id){const n=un.value.trim();if(!n){um.textContent="Isi nama pelatih.";return}
+ try{if(id)await FB.userUpdate(id,{nama:n});else{const e=ue.value.trim(),p=up.value;if(!e){um.textContent="Isi email.";return}if(p.length<6){um.textContent="Kata sandi awal minimal 6 karakter.";return}um.textContent="Menyimpan...";await FB.userAdd(n,e,p)}D.close();await loadUsers()}catch(x){um.textContent=uErr(x)}}
+async function uReset(id){const u=USERS.find(x=>x.id==id);if(!confirm("Kirim email reset kata sandi ke "+u.email+"?"))return;try{await FB.resetPass(u.email);alert("Email reset kata sandi dikirim ke "+u.email+".")}catch(e){alert(uErr(e))}}
+async function uToggle(id){const u=USERS.find(x=>x.id==id);try{await FB.userUpdate(id,{aktif:u.aktif===false});await loadUsers()}catch(e){alert(uErr(e))}}
+async function uDel(id){const u=USERS.find(x=>x.id==id);if(!confirm("Hapus akses "+(u.nama||u.email)+"? Akun ini tidak bisa masuk lagi."))return;try{await FB.userDel(id);await loadUsers()}catch(e){alert(uErr(e))}}
 D.addEventListener("cancel",e=>{if(window.NEEDLOGIN)e.preventDefault()});
 load();render();initDb();
 </script>
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,EmailAuthProvider,reauthenticateWithCredential,updatePassword,updateProfile,verifyBeforeUpdateEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,onSnapshot,collection} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {initializeApp,deleteApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,EmailAuthProvider,reauthenticateWithCredential,updatePassword,updateProfile,verifyBeforeUpdateEmail,createUserWithEmailAndPassword,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot,collection,getDocs,deleteDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const C=window.FIREBASE_CONFIG,hp=document.querySelector("header p"),base=hp.textContent;
 if(C.apiKey&&!C.apiKey.startsWith("ISI")){
 const app=initializeApp(C),auth=getAuth(app),fs=getFirestore(app),ref=doc(fs,"app","state"),lo=document.getElementById("lo");let un=[];
 window.FB={login:(e,p)=>signInWithEmailAndPassword(auth,e,p),logout:()=>signOut(auth),
- setName:async n=>{await updateProfile(auth.currentUser,{displayName:n});window.ME.name=n;lo.textContent=(n||window.ME.email)+" \u25be"},
+ listUsers:async()=>(await getDocs(collection(fs,"users"))).docs.map(d=>({id:d.id,...d.data()})),
+ userUpdate:(id,o)=>setDoc(doc(fs,"users",id),o,{merge:true}),
+ userDel:id=>deleteDoc(doc(fs,"users",id)),
+ resetPass:e=>sendPasswordResetEmail(auth,e),
+ userAdd:async(nama,email,pass)=>{const a2=initializeApp(C,"sek"+Date.now()),au=getAuth(a2);let uid;
+  try{let cr;try{cr=await createUserWithEmailAndPassword(au,email,pass)}catch(e){if(e.code=="auth/email-already-in-use")cr=await signInWithEmailAndPassword(au,email,pass);else throw e}
+  uid=cr.user.uid;const ex=await getDoc(doc(fs,"users",uid));if(ex.exists()&&ex.data().role=="admin")throw{code:"app/is-admin"};
+  await updateProfile(cr.user,{displayName:nama});await signOut(au)}finally{try{await deleteApp(a2)}catch(e){}}
+  await setDoc(doc(fs,"users",uid),{role:"pelatih",nama,email,aktif:true})},
+ setName:async n=>{await updateProfile(auth.currentUser,{displayName:n});await setDoc(doc(fs,"users",auth.currentUser.uid),{nama:n},{merge:true});window.ME.name=n;lo.textContent=(n||window.ME.email)+" \u25be"},
  setPass:async(c,n)=>{const u=auth.currentUser;await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,c));await updatePassword(u,n)},
  setEmail:async(c,e)=>{const u=auth.currentUser;await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,c));await verifyBeforeUpdateEmail(u,e)},putFoto:async(id,d)=>{await setDoc(doc(fs,"foto",id),{d});FOTO[id]=d}};
 onAuthStateChanged(auth,async u=>{un.forEach(f=>f());un=[];setDB(null);lo.hidden=!u;
  if(!u){window.ME=null;setROLE(null);window.NEEDLOGIN=true;try{localStorage.removeItem(KEY)}catch(e){}hp.textContent=base;render();return}
- let role=null;try{const r=await getDoc(doc(fs,"users",u.uid));role=r.exists()?r.data().role:null}catch(e){}
+ let role=null,ud={};try{const r=await getDoc(doc(fs,"users",u.uid));ud=r.exists()?r.data():{};role=ud.role||null}catch(e){}
  if(role!=="admin"&&role!=="pelatih"){window.LERR="Akun ini belum diberi peran. Hubungi admin.";window.WANT=null;await signOut(auth);return}
+ if(ud.aktif===false){window.LERR="Akun ini dinonaktifkan. Hubungi admin.";window.WANT=null;await signOut(auth);return}
  if(window.WANT&&window.WANT!==role){window.LERR=window.WANT=="admin"?"Akun ini bukan admin. Pilih Pelatih untuk masuk.":"Akun ini terdaftar sebagai admin. Pilih Admin untuk masuk.";window.WANT=null;await signOut(auth);return}
- window.WANT=null;setROLE(role);window.ME={name:u.displayName||"",email:u.email,role};lo.textContent=(u.displayName||u.email)+" \u25be";window.NEEDLOGIN=false;if(D.open)D.close();D.style.borderTop="";
+ window.WANT=null;if(ud.email!==u.email||ud.nama===undefined)setDoc(doc(fs,"users",u.uid),{email:u.email,nama:ud.nama||u.displayName||""},{merge:true}).catch(()=>{});setROLE(role);window.ME={name:u.displayName||"",email:u.email,role};lo.textContent=(u.displayName||u.email)+" \u25be";window.NEEDLOGIN=false;if(D.open)D.close();D.style.borderTop="";
  try{const s=await getDoc(ref);
   if(s.exists()){setS(JSON.parse(s.data().json))}else{setS({a:[],ev:[]});await setDoc(ref,{json:JSON.stringify(S)})}
   setDB({set:o=>setDoc(ref,o)});hp.textContent=base+" \u00b7 Data bersama aktif \u00b7 "+(role=="admin"?"Admin":"Pelatih");render();
