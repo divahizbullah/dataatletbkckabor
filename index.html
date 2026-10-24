@@ -49,6 +49,7 @@ label{display:block;font-size:13px;color:var(--mut);margin-top:8px}label input,l
 .sel{position:sticky;top:0;background:var(--sf);border:2px solid var(--ac);border-radius:8px;padding:12px;margin-bottom:12px;z-index:2}
 .tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:6px 8px;border-bottom:1px solid var(--ln);text-align:left;white-space:nowrap}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* ISI DENGAN KONFIGURASI FIREBASE ANDA (Project settings > Your apps > Web app) */
 window.FIREBASE_CONFIG={apiKey:"AIzaSyBRH6JOlHRTfo4lkWc-I-vbznVCmsxG1Dg",authDomain:"dataatletbkckabor.firebaseapp.com",projectId:"dataatletbkckabor",appId:"1:333172042475:web:6ced0371899f962b126cae"};
@@ -157,7 +158,7 @@ function vDash(){
 
 function vAth(){
  const L=S.a.filter(a=>(!q||(a.nama+a.dojo).toLowerCase().includes(q.toLowerCase()))&&(!fk||a.kat==fk));
- return `<div class="row"><input id="q" placeholder="Cari nama atau dojo" value="${esc(q)}" oninput="q=this.value;keep()" class="sp"><select onchange="fk=this.value;render()"><option value="">Semua</option><option ${fk=="Kata"?"selected":""}>Kata</option><option ${fk=="Kumite"?"selected":""}>Kumite</option></select><button class="b p" onclick="formAth()">Tambah atlet</button></div>
+ return `<div class="row"><input id="q" placeholder="Cari nama atau dojo" value="${esc(q)}" oninput="q=this.value;keep()" class="sp"><select onchange="fk=this.value;render()"><option value="">Semua</option><option ${fk=="Kata"?"selected":""}>Kata</option><option ${fk=="Kumite"?"selected":""}>Kumite</option></select><button class="b" onclick="document.getElementById('xl').click()">Impor Excel</button><input id="xl" type="file" accept=".xlsx,.xls" hidden onchange="impXlsx(this)"><button class="b p" onclick="formAth()">Tambah atlet</button></div>
  <div class="grid" id="list">${listHtml(L)}</div>`;
 }
 function listHtml(L){return L.map(a=>`<div class="box ath" onclick="detail('${a.id}')">${av(a)}<div><b>${esc(a.nama)}</b><div class="mut">${esc(a.dojo)} · ${age(a)} th</div><div>${sabuk(a.sabuk)}${(a.status||"Aktif")=="Nonaktif"?' <span class="mut">(nonaktif)</span>':""}</div><div>${medHtml(a)}<span class="mut">${pts(a)} poin</span></div></div></div>`).join("")||'<div class="box mut">Atlet tidak ditemukan. Ubah kata kunci atau tambah atlet baru.</div>'}
@@ -218,6 +219,29 @@ function saveAth(id){const n=fn.value.trim();if(!n){alert("Isi nama atlet.");ret
 function exportJSON(){dl("bkc-atlet.json",JSON.stringify(S,null,1))}
 function importJSON(i){if(!isAdm())return;const f=i.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.a)throw 0;S=d;save();render()}catch(e){alert("File tidak valid.")}})}
 function resetAll(){if(!isAdm())return;if(confirm("Ganti semua data dengan data contoh?")){S={a:seed()};sel.clear();save();render()}}
+const cap=s=>{s=String(s||"").trim().toLowerCase();return s.charAt(0).toUpperCase()+s.slice(1)};
+const tgl=v=>{v=String(v||"").trim();let m;if(m=v.match(/^(\d{4})-(\d{2})-(\d{2})/))return m[1]+"-"+m[2]+"-"+m[3];if(m=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/))return m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0");return""};
+function impXlsx(inp){const f=inp.files[0];inp.value="";if(!f)return;if(!window.XLSX){alert("Pustaka Excel belum termuat. Periksa koneksi internet lalu muat ulang.");return}
+ f.arrayBuffer().then(b=>{try{
+  const w=XLSX.read(b,{type:"array",cellDates:true}),rows=n=>w.Sheets[n]?XLSX.utils.sheet_to_json(w.Sheets[n],{defval:"",raw:false,dateNF:"yyyy-mm-dd"}):[],t=x=>String(x??"").trim();
+  let nb=0,up=0,hs=0;const er=[];
+  rows("Data Atlet").forEach((r,i)=>{const n=t(r["Nama Lengkap *"]||r["Nama Lengkap"]);if(!n||n.startsWith("(CONTOH)"))return;
+   const g=cap(r["Jenis Kelamin *"]||r["Jenis Kelamin"]),k=cap(r["Kategori Utama *"]||r["Kategori Utama"]),sb=cap(r["Sabuk *"]||r["Sabuk"]),L=`Atlet baris ${i+2} (${n}): `;
+   if(g!="Putra"&&g!="Putri"){er.push(L+"jenis kelamin harus Putra atau Putri");return}
+   if(!SB[sb]){er.push(L+"sabuk tidak dikenal");return}
+   if(k!="Kata"&&k!="Kumite"){er.push(L+"kategori harus Kata atau Kumite");return}
+   const v={nama:n,gender:g,lahir:tgl(r["Tanggal Lahir\n(yyyy-mm-dd)"]||r["Tanggal Lahir"]),dojo:t(r["Dojo"]),sabuk:sb,kat:k,kelas:t(r["Kelas"]),bb:t(r["Berat (kg)"]),tb:t(r["Tinggi (cm)"]),hp:t(r["No. HP / Wali"]),status:cap(r["Status"])=="Nonaktif"?"Nonaktif":"Aktif",catatan:t(r["Catatan Pelatih"])};
+   const a=S.a.find(x=>x.nama.toLowerCase()==n.toLowerCase()&&(!v.lahir||!x.lahir||x.lahir==v.lahir));
+   if(a){Object.assign(a,v);up++}else{S.a.push({id:uid(),results:[],...v});nb++}});
+  rows("Hasil Kejuaraan").forEach((r,i)=>{const n=t(r["Nama Atlet *"]||r["Nama Atlet"]);if(!n||n.startsWith("(CONTOH)"))return;
+   const a=S.a.find(x=>x.nama.toLowerCase()==n.toLowerCase()),e=t(r["Nama Kejuaraan *"]||r["Nama Kejuaraan"]),tk=cap(r["Tingkat *"]||r["Tingkat"]),th=+t(r["Tahun *"]||r["Tahun"]),m=cap(r["Hasil *"]||r["Hasil"]),k=cap(r["Kategori"])||(a&&a.kat),L=`Hasil baris ${i+2} (${n}): `;
+   if(!a){er.push(L+"nama atlet tidak ditemukan");return}
+   if(!e||!TK[tk]||!MD[m]||!th){er.push(L+"kejuaraan, tingkat, tahun, atau hasil tidak valid");return}
+   if(a.results.some(x=>x.event==e&&x.tahun==th&&x.tingkat==tk&&x.medali==m))return;
+   a.results.push({id:uid(),event:e,tingkat:tk,tahun:th,kat:k,medali:m});hs++});
+  save();render();
+  alert(`Impor selesai.\nAtlet baru: ${nb}\nAtlet diperbarui: ${up}\nHasil kejuaraan ditambah: ${hs}`+(er.length?`\n\nDilewati (${er.length}):\n`+er.slice(0,8).join("\n")+(er.length>8?"\n...":""):""))
+ }catch(e){alert("File tidak bisa dibaca. Gunakan template Excel yang disediakan.")}})}
 D.addEventListener("cancel",e=>{if(window.NEEDLOGIN)e.preventDefault()});
 load();render();initDb();
 </script>
