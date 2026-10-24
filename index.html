@@ -51,27 +51,7 @@ label{display:block;font-size:13px;color:var(--mut);margin-top:8px}label input,l
 </style>
 <script>
 /* ISI DENGAN KONFIGURASI FIREBASE ANDA (Project settings > Your apps > Web app) */
-window.FIREBASE_CONFIG={// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBRH6JOlHRTfo4lkWc-I-vbznVCmsxG1Dg",
-  authDomain: "dataatletbkckabor.firebaseapp.com",
-  projectId: "dataatletbkckabor",
-  storageBucket: "dataatletbkckabor.firebasestorage.app",
-  messagingSenderId: "333172042475",
-  appId: "1:333172042475:web:6ced0371899f962b126cae",
-  measurementId: "G-8QVG9ZB4DR"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);};
+window.FIREBASE_CONFIG={apiKey:"AIzaSyBRH6JOlHRTfo4lkWc-I-vbznVCmsxG1Dg",authDomain:"dataatletbkckabor.firebaseapp.com",projectId:"dataatletbkckabor",appId:"1:333172042475:web:6ced0371899f962b126cae"};
 window.NEEDLOGIN=!window.FIREBASE_CONFIG.apiKey.startsWith("ISI");
 </script>
 </head>
@@ -99,6 +79,7 @@ function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&
 let DB=null,PH=null,tm;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}clearTimeout(tm);tm=setTimeout(()=>{if(DB)DB.set({json:JSON.stringify(S)}).catch(()=>{})},600)}
 function setS(x){S=x}
+let ROLE=null,LR="pelatih";const isAdm=()=>ROLE!=="pelatih";function setROLE(r){ROLE=r}
 function setDB(x){DB=x}
 function initDb(){}
 const FOTO={};
@@ -106,14 +87,15 @@ const av=a=>FOTO[a.id]?`<img class="ava" src="${FOTO[a.id]}" alt="">`:`<div clas
 const csv=r=>r.map(x=>x.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
 function dl(name,data){const u=URL.createObjectURL(new Blob([data],{type:"text/plain"}));const l=document.createElement("a");l.href=u;l.download=name;l.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 function exportCSV(){dl("bkc-atlet.csv",csv([["Nama","Gender","Lahir","Dojo","Sabuk","Kategori","Kelas","BB","TB","HP","Status","Emas","Perak","Perunggu","Poin"],...S.a.map(a=>{const c=cnt(a);return [a.nama,a.gender,a.lahir,a.dojo,a.sabuk,a.kat,a.kelas,a.bb,a.tb,a.hp,a.status||"Aktif",c.Emas,c.Perak,c.Perunggu,pts(a)]})]))}
-function clearAll(){if(confirm("Hapus SEMUA data atlet? Tindakan ini berlaku untuk semua pengurus.")){S={a:[]};sel.clear();save();render()}}
+function clearAll(){if(!isAdm())return;if(confirm("Hapus SEMUA data atlet? Tindakan ini berlaku untuk semua pengurus.")){S={a:[]};sel.clear();save();render()}}
 function foto(id){if(!window.FB||!FB.putFoto){alert("Foto tersedia setelah database online diatur.");return}const i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{const im=new Image;im.onload=async()=>{try{const c=document.createElement("canvas"),k=Math.min(1,256/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);await FB.putFoto(id,c.toDataURL("image/jpeg",.7));render();detail(id)}catch(e){alert("Foto gagal diunggah.")}};im.src=URL.createObjectURL(i.files[0])};i.click()}
-function loginHtml(){return `<div class="box" style="max-width:380px;margin:30px auto"><h2 style="margin-top:0">Masuk pengurus</h2><label>Email<input id="lm" type="email" autocomplete="username"></label><label>Kata sandi<input id="lp" type="password" autocomplete="current-password"></label><div id="le" style="color:var(--ac);margin:6px 0"></div><button class="b p" style="width:100%" onclick="doLogin()">Masuk</button></div>`}
-function doLogin(){le.textContent="";FB.login(lm.value.trim(),lp.value).catch(e=>{const c=e&&e.code||"";le.textContent=c=="auth/invalid-credential"||c=="auth/wrong-password"||c=="auth/user-not-found"?"Email atau kata sandi salah.":c=="auth/unauthorized-domain"?"Domain ini belum diizinkan. Tambahkan di Firebase: Authentication > Settings > Authorized domains.":"Gagal masuk: "+(c||e)})}
+function showLogin(){D.innerHTML=`<h2 style="margin-top:0">Masuk aplikasi</h2><div class="row" style="margin:8px 0"><button class="b sp" id="rp" onclick="setLR('pelatih')">Pelatih</button><button class="b sp" id="ra" onclick="setLR('admin')">Admin</button></div><div class="mut" id="lt"></div><label>Email<input id="lm" type="email" autocomplete="username"></label><label>Kata sandi<input id="lp" type="password" autocomplete="current-password"></label><div id="le" style="color:var(--ac);margin:6px 0"></div><button class="b p" id="lb" style="width:100%" onclick="doLogin()">Masuk</button>`;setLR(LR);if(window.LERR){le.textContent=window.LERR;window.LERR=""}if(!D.open)D.showModal()}
+function setLR(r){LR=r;const a=r=="admin";rp.className="b sp"+(a?"":" p");ra.className="b sp"+(a?" p":"");ra.style.cssText=a?"background:var(--ink);color:var(--bg);border-color:var(--ink)":"";lt.textContent=a?"Admin: akses penuh, termasuk menghapus data dan mengelola seluruh data.":"Pelatih: input atlet, event, dan hasil kejuaraan.";lb.textContent=a?"Masuk sebagai Admin":"Masuk sebagai Pelatih";lb.style.cssText=a?"width:100%;background:var(--ink);border-color:var(--ink)":"width:100%";D.style.borderTop="6px solid "+(a?"var(--ink)":"var(--ac)")}
+function doLogin(){le.textContent="";window.WANT=LR;FB.login(lm.value.trim(),lp.value).catch(e=>{window.WANT=null;const c=e&&e.code||"";le.textContent=c=="auth/invalid-credential"||c=="auth/wrong-password"||c=="auth/user-not-found"?"Email atau kata sandi salah.":c=="auth/unauthorized-domain"?"Domain ini belum diizinkan. Tambahkan di Firebase: Authentication > Settings > Authorized domains.":"Gagal masuk: "+(c||e)})}
 const EV=()=>S.ev||(S.ev=[]);
 function syncEvt(){S.a.forEach(a=>a.results=a.results.filter(r=>!r.evid));EV().forEach(e=>(e.peserta||[]).forEach(p=>{const a=S.a.find(x=>x.id==p.aid);if(a&&p.hasil)a.results.push({id:uid(),event:e.nama,tingkat:e.tingkat,tahun:e.tanggal?+e.tanggal.slice(0,4):new Date().getFullYear(),kat:p.kat,medali:p.hasil,evid:e.id})}))}
 function vEvt(){const L=[...EV()].sort((x,y)=>(y.tanggal||"").localeCompare(x.tanggal||""));
- return `<div class="row"><h2 class="sp" style="margin:0">Event kejuaraan</h2><button class="b p" onclick="formEvt()">Tambah event</button></div>`+(L.map(e=>{const P=e.peserta||[];return `<div class="box" style="margin-top:10px"><div class="row"><b class="sp">${esc(e.nama)}</b><span class="mut">${e.selesai?"Selesai":"Rencana"}</span></div><div class="mut">${esc(e.tingkat)} · ${esc(e.tanggal||"tanggal belum diisi")}${e.lokasi?" · "+esc(e.lokasi):""}</div><div style="margin:6px 0">${P.length} atlet${P.length?": "+P.map(p=>{const a=S.a.find(x=>x.id==p.aid);return a?esc(a.nama)+(p.hasil?" ("+p.hasil+")":""):""}).filter(Boolean).join(", "):" belum dipilih"}</div><div class="row"><button class="b" onclick="pesEvt('${e.id}')">Pilih atlet</button><button class="b p" onclick="hasEvt('${e.id}')" ${P.length?"":"disabled"}>Isi hasil</button><button class="b" onclick="formEvt('${e.id}')">Ubah</button><button class="b d" onclick="delEvt('${e.id}')">Hapus</button></div></div>`}).join("")||'<div class="box mut" style="margin-top:10px">Belum ada event. Tekan Tambah event, lalu pilih atlet yang akan berangkat.</div>')}
+ return `<div class="row"><h2 class="sp" style="margin:0">Event kejuaraan</h2><button class="b p" onclick="formEvt()">Tambah event</button></div>`+(L.map(e=>{const P=e.peserta||[];return `<div class="box" style="margin-top:10px"><div class="row"><b class="sp">${esc(e.nama)}</b><span class="mut">${e.selesai?"Selesai":"Rencana"}</span></div><div class="mut">${esc(e.tingkat)} · ${esc(e.tanggal||"tanggal belum diisi")}${e.lokasi?" · "+esc(e.lokasi):""}</div><div style="margin:6px 0">${P.length} atlet${P.length?": "+P.map(p=>{const a=S.a.find(x=>x.id==p.aid);return a?esc(a.nama)+(p.hasil?" ("+p.hasil+")":""):""}).filter(Boolean).join(", "):" belum dipilih"}</div><div class="row"><button class="b" onclick="pesEvt('${e.id}')">Pilih atlet</button><button class="b p" onclick="hasEvt('${e.id}')" ${P.length?"":"disabled"}>Isi hasil</button><button class="b" onclick="formEvt('${e.id}')">Ubah</button>${isAdm()?`<button class="b d" onclick="delEvt('${e.id}')">Hapus</button>`:""}</div></div>`}).join("")||'<div class="box mut" style="margin-top:10px">Belum ada event. Tekan Tambah event, lalu pilih atlet yang akan berangkat.</div>')}
 function formEvt(id){const e=EV().find(x=>x.id==id)||{nama:"",tingkat:"Kabupaten",tanggal:"",lokasi:""};
  D.innerHTML=`<h2>${id?"Ubah event":"Tambah event"}</h2><label>Nama event<input id="vn" value="${esc(e.nama)}"></label><div class="f2"><label>Tingkat<select id="vt">${Object.keys(TK).map(k=>`<option ${k==e.tingkat?"selected":""}>${k}</option>`).join("")}</select></label><label>Tanggal<input id="vd" type="date" value="${esc(e.tanggal)}"></label></div><label>Lokasi<input id="vl" value="${esc(e.lokasi)}"></label><div class="row" style="margin-top:14px"><button class="b p sp" onclick="saveEvt('${id||""}')">Simpan</button><button class="b" onclick="D.close()">Batal</button></div>`;if(!D.open)D.showModal()}
 function saveEvt(id){const n=vn.value.trim();if(!n){alert("Isi nama event.");return}const v={nama:n,tingkat:vt.value,tanggal:vd.value,lokasi:vl.value.trim()};if(id){Object.assign(EV().find(x=>x.id==id),v);syncEvt()}else EV().push({id:uid(),peserta:[],selesai:false,...v});save();D.close();render()}
@@ -124,7 +106,7 @@ function savePes(id){const e=EV().find(x=>x.id==id),old=e.peserta||[];e.peserta=
 function hasEvt(id){const e=EV().find(x=>x.id==id);
  D.innerHTML=`<h2>Hasil event</h2><div class="mut">${esc(e.nama)} · ${esc(e.tingkat)}</div>`+e.peserta.map(p=>{const a=S.a.find(x=>x.id==p.aid);return a?`<div class="row" style="margin:8px 0"><span class="sp">${esc(a.nama)} <span class="mut">${esc(p.kat)} ${esc(a.kelas)}</span></span><select data-h="${a.id}"><option value="">Belum ada hasil</option>${Object.keys(MD).map(k=>`<option ${k==p.hasil?"selected":""}>${k}</option>`).join("")}</select></div>`:""}).join("")+`<label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="hs" style="width:auto" ${e.selesai?"checked":""}>Tandai event selesai</label><div class="row" style="margin-top:12px"><button class="b p sp" onclick="saveHas('${id}')">Simpan hasil</button><button class="b" onclick="D.close()">Batal</button></div>`;D.showModal()}
 function saveHas(id){const e=EV().find(x=>x.id==id);D.querySelectorAll("select[data-h]").forEach(s=>{e.peserta.find(p=>p.aid==s.dataset.h).hasil=s.value});e.selesai=hs.checked;syncEvt();save();D.close();render()}
-function delEvt(id){if(!confirm("Hapus event ini? Hasil atlet dari event ini ikut terhapus."))return;S.ev=EV().filter(e=>e.id!=id);syncEvt();save();render()}
+function delEvt(id){if(!isAdm())return;if(!confirm("Hapus event ini? Hasil atlet dari event ini ikut terhapus."))return;S.ev=EV().filter(e=>e.id!=id);syncEvt();save();render()}
 function prog(a){const Y={},M={Emas:0,Perak:0,Perunggu:0,Partisipasi:0};a.results.forEach(r=>{Y[r.tahun]=(Y[r.tahun]||0)+MD[r.medali]*TK[r.tingkat];M[r.medali]++});
  const ys=Object.keys(Y).sort();if(!ys.length)return'<h2>Grafik perkembangan</h2><div class="mut">Grafik muncul setelah ada hasil kejuaraan.</div>';
  const W=320,H=150,l=28,b=24,t=16,m=Math.max(...Object.values(Y))||1,n=ys.length,st=(W-l-10)/n,bw=Math.min(36,st*.6),px=i=>l+st*i+st/2,py=v=>t+(H-t-b)*(1-v/m);
@@ -150,7 +132,7 @@ const ini=n=>n.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
 
 function render(){
  document.getElementById("nav").innerHTML=[["dash","Ringkasan"],["ath","Atlet"],["evt","Event"],["ev","Kejuaraan"],["pick","Seleksi tim"]].map(([k,l])=>`<button class="${tab==k?"on":""}" onclick="go('${k}')">${l}</button>`).join("");
- const el=document.getElementById("app");if(window.NEEDLOGIN){document.getElementById("nav").innerHTML="";el.innerHTML=loginHtml();return}
+ const el=document.getElementById("app");if(window.NEEDLOGIN){document.getElementById("nav").innerHTML="";el.innerHTML="";showLogin();return}
  el.innerHTML=tab=="dash"?vDash():tab=="ath"?vAth():tab=="ev"?vEv():tab=="evt"?vEvt():vPick();
 }
 function go(t){tab=t;render();scrollTo(0,0)}
@@ -169,7 +151,7 @@ function vDash(){
  <h2>Perolehan medali per tahun</h2><div class="box">${yrs.length?yrs.map(y=>`<div class="bar"><span style="width:38px">${y}</span><i style="width:${by[y]/mx*70}%"></i>${by[y]}</div>`).join(""):'<span class="mut">Belum ada medali. Tambahkan hasil kejuaraan pada profil atlet.</span>'}</div>
  <h2>Atlet berprestasi</h2><div class="box">${top.map((a,i)=>`<div class="pick" onclick="detail('${a.id}')" style="cursor:pointer"><span class="rk">${i+1}</span><div><b>${esc(a.nama)}</b><div class="mut">${esc(a.dojo)} · ${esc(a.kat)} ${esc(a.kelas)}</div></div><div class="pt">${pts(a)}<div class="mut" style="font:12px Barlow">poin</div></div></div>`).join("")||'<span class="mut">Belum ada atlet.</span>'}</div>
  <h2>Cara hitung poin</h2><div class="box mut">Poin = nilai medali × bobot tingkat. Emas 5, Perak 3, Perunggu 2, Partisipasi 1. Bobot: Kabupaten ×1, Provinsi ×2, Nasional ×3, Internasional ×4.</div>
- <div class="row" style="margin-top:16px"><button class="b" onclick="exportCSV()">Unduh CSV</button><button class="b" onclick="exportJSON()">Cadangkan data</button><button class="b" onclick="document.getElementById('imp').click()">Pulihkan data</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(this)"><button class="b d" onclick="resetAll()">Reset ke contoh</button><button class="b d" onclick="clearAll()">Hapus semua data</button></div>
+ <div class="row" style="margin-top:16px"><button class="b" onclick="exportCSV()">Unduh CSV</button><button class="b" onclick="exportJSON()">Cadangkan data</button>${isAdm()?`<button class="b" onclick="document.getElementById('imp').click()">Pulihkan data</button><input id="imp" type="file" accept=".json" hidden onchange="importJSON(this)">`:""}${isAdm()?`<button class="b d" onclick="resetAll()">Reset ke contoh</button><button class="b d" onclick="clearAll()">Hapus semua data</button>`:""}</div>
  <p class="mut">Data disimpan bersama: pengurus yang diberi akses kontributor bisa menambah dan mengubah data, dan perubahan muncul di semua perangkat. Pengurus yang hanya melihat tidak bisa mengubah data. Data contoh bisa dihapus lewat Hapus semua data sebelum mulai input data asli.</p>`;
 }
 
@@ -202,7 +184,7 @@ function detail(id){
  D.innerHTML=`<div class="row"><h2 style="margin:0" class="sp">${esc(a.nama)}</h2><button class="b" onclick="D.close()">Tutup</button></div>
  <div class="row" style="margin-top:8px">${av(a)}<div><div class="mut">${esc(a.gender)} · ${age(a)} th · ${esc(a.dojo)}</div><div>${sabuk(a.sabuk)} · ${esc(a.kat)} ${esc(a.kelas)}</div></div></div><div class="mut">BB ${esc(a.bb||"-")} kg · TB ${esc(a.tb||"-")} cm · HP ${esc(a.hp||"-")} · ${esc(a.status||"Aktif")}</div>${a.catatan?`<div class="box" style="margin-top:8px">${esc(a.catatan)}</div>`:""}
  <div style="margin:8px 0">${medHtml(a)}<b style="color:var(--ac)">${pts(a)} poin</b></div>
- <div class="row"><button class="b" onclick="formAth('${a.id}')">Ubah profil</button><button class="b" onclick="foto('${a.id}')">Ganti foto</button><button class="b d" onclick="delAth('${a.id}')">Hapus atlet</button></div>
+ <div class="row"><button class="b" onclick="formAth('${a.id}')">Ubah profil</button><button class="b" onclick="foto('${a.id}')">Ganti foto</button>${isAdm()?`<button class="b d" onclick="delAth('${a.id}')">Hapus atlet</button>`:""}</div>
  ${prog(a)}<h2>Perjalanan kejuaraan</h2>
  <div class="tl">${rs.map(r=>`<div><b>${esc(r.event)}</b> · ${r.tahun}<br><span class="med"><i class="dot" style="background:${MC[r.medali]||"var(--ln)"}"></i>${esc(r.medali)}</span><span class="mut">${esc(r.tingkat)} · ${esc(r.kat)} · ${MD[r.medali]*TK[r.tingkat]} poin</span> <a href="#" onclick="delRes('${a.id}','${r.id}');return false" style="color:var(--ac)">hapus</a></div>`).join("")||'<span class="mut">Belum ada hasil kejuaraan.</span>'}</div>
  <h2>Tambah hasil kejuaraan</h2>
@@ -215,7 +197,7 @@ function detail(id){
 function addRes(id){const a=S.a.find(x=>x.id==id),e=document.getElementById("re").value.trim();if(!e){alert("Isi nama kejuaraan.");return}
  a.results.push({id:uid(),event:e,tingkat:rt.value,tahun:+ry.value,kat:rk.value,medali:rm.value});save();render();detail(id)}
 function delRes(id,rid){const a=S.a.find(x=>x.id==id),r0=a.results.find(r=>r.id==rid);if(r0&&r0.evid){const e=EV().find(x=>x.id==r0.evid),p=e&&e.peserta.find(p=>p.aid==id);if(p)p.hasil=""}a.results=a.results.filter(r=>r.id!=rid);save();render();detail(id)}
-function delAth(id){if(!confirm("Hapus atlet beserta seluruh riwayatnya?"))return;S.a=S.a.filter(x=>x.id!=id);sel.delete(id);save();D.close();render()}
+function delAth(id){if(!isAdm())return;if(!confirm("Hapus atlet beserta seluruh riwayatnya?"))return;S.a=S.a.filter(x=>x.id!=id);sel.delete(id);save();D.close();render()}
 function formAth(id){
  const a=S.a.find(x=>x.id==id)||{nama:"",gender:"Putra",lahir:"",dojo:"",sabuk:"Putih",kat:"Kumite",kelas:"",bb:"",tb:"",hp:"",status:"Aktif",catatan:""};
  const o=(L,v)=>L.map(x=>`<option ${x==v?"selected":""}>${x}</option>`).join("");
@@ -234,8 +216,9 @@ function saveAth(id){const n=fn.value.trim();if(!n){alert("Isi nama atlet.");ret
  save();D.close();render()}
 
 function exportJSON(){dl("bkc-atlet.json",JSON.stringify(S,null,1))}
-function importJSON(i){const f=i.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.a)throw 0;S=d;save();render()}catch(e){alert("File tidak valid.")}})}
-function resetAll(){if(confirm("Ganti semua data dengan data contoh?")){S={a:seed()};sel.clear();save();render()}}
+function importJSON(i){if(!isAdm())return;const f=i.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.a)throw 0;S=d;save();render()}catch(e){alert("File tidak valid.")}})}
+function resetAll(){if(!isAdm())return;if(confirm("Ganti semua data dengan data contoh?")){S={a:seed()};sel.clear();save();render()}}
+D.addEventListener("cancel",e=>{if(window.NEEDLOGIN)e.preventDefault()});
 load();render();initDb();
 </script>
 <script type="module">
@@ -247,11 +230,14 @@ if(C.apiKey&&!C.apiKey.startsWith("ISI")){
 const app=initializeApp(C),auth=getAuth(app),fs=getFirestore(app),ref=doc(fs,"app","state"),lo=document.getElementById("lo");let un=[];
 window.FB={login:(e,p)=>signInWithEmailAndPassword(auth,e,p),logout:()=>signOut(auth),putFoto:async(id,d)=>{await setDoc(doc(fs,"foto",id),{d});FOTO[id]=d}};
 onAuthStateChanged(auth,async u=>{un.forEach(f=>f());un=[];setDB(null);lo.hidden=!u;
- if(!u){window.NEEDLOGIN=true;try{localStorage.removeItem(KEY)}catch(e){}hp.textContent=base;render();return}
- window.NEEDLOGIN=false;
+ if(!u){setROLE(null);window.NEEDLOGIN=true;try{localStorage.removeItem(KEY)}catch(e){}hp.textContent=base;render();return}
+ let role=null;try{const r=await getDoc(doc(fs,"users",u.uid));role=r.exists()?r.data().role:null}catch(e){}
+ if(role!=="admin"&&role!=="pelatih"){window.LERR="Akun ini belum diberi peran. Hubungi admin.";window.WANT=null;await signOut(auth);return}
+ if(window.WANT&&window.WANT!==role){window.LERR=window.WANT=="admin"?"Akun ini bukan admin. Pilih Pelatih untuk masuk.":"Akun ini terdaftar sebagai admin. Pilih Admin untuk masuk.";window.WANT=null;await signOut(auth);return}
+ window.WANT=null;setROLE(role);window.NEEDLOGIN=false;if(D.open)D.close();D.style.borderTop="";
  try{const s=await getDoc(ref);
   if(s.exists()){setS(JSON.parse(s.data().json))}else{setS({a:[],ev:[]});await setDoc(ref,{json:JSON.stringify(S)})}
-  setDB({set:o=>setDoc(ref,o)});hp.textContent=base+" \u00b7 Data bersama aktif";render();
+  setDB({set:o=>setDoc(ref,o)});hp.textContent=base+" \u00b7 Data bersama aktif \u00b7 "+(role=="admin"?"Admin":"Pelatih");render();
   un.push(onSnapshot(ref,x=>{if(!x.exists()||x.metadata.hasPendingWrites||D.open)return;const j=x.data().json;if(j!==JSON.stringify(S)){setS(JSON.parse(j));render()}}));
   un.push(onSnapshot(collection(fs,"foto"),q=>{q.docs.forEach(d=>FOTO[d.id]=d.data().d);if(!D.open)render()}));
  }catch(e){hp.textContent=base+" \u00b7 Gagal terhubung: "+(e.code||e.message);render()}
