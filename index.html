@@ -12,7 +12,7 @@
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0f161d;--sf:#18222c;--ink:#eef2f5;--mut:#9aa8b5;--ln:#2a3844;--ac:#ef3d57;--acb:#fff;--gold:#e3b53f;--sil:#a9b4bf;--brz:#cf8a4f}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,system-ui,sans-serif;padding-bottom:8px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,system-ui,sans-serif;padding-bottom:48px}
 h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;letter-spacing:.2px}
 header{background:var(--ink);color:var(--bg);padding:14px 16px;border-bottom:4px solid var(--ac)}
 header h1{font-size:24px;line-height:1.1}header p{margin:2px 0 0;font-size:13px;opacity:.75}
@@ -27,7 +27,7 @@ main{max-width:980px;margin:0 auto;padding:14px 14px 14px 28px}
 .dc{padding:12px 18px;font-size:11px;line-height:1.3;color:var(--mut);border-top:1px solid var(--ln)}
 #hd{position:absolute;left:100%;top:50%;margin-top:-36px;width:24px;height:72px;padding:0;border:0;border-radius:0 10px 10px 0;background:var(--ac);color:var(--acb);font-size:16px;line-height:1;cursor:grab;touch-action:none;box-shadow:2px 0 6px rgba(0,0,0,.25)}
 #bd{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;z-index:19}
-footer.cr{text-align:center;color:var(--mut);font-size:12px;padding:18px 14px 12px}
+footer.cr{position:fixed;left:0;right:0;bottom:0;z-index:5;text-align:center;background:var(--sf);color:var(--mut);font-size:12px;line-height:1.3;padding:9px 14px calc(9px + env(safe-area-inset-bottom,0px));border-top:2px solid var(--ac)}
 .cr-l{text-align:center;color:var(--mut);font-size:11px;margin-top:12px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{flex:1}
 input,select,button.b{font:inherit;padding:9px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink);min-width:0}
@@ -69,7 +69,7 @@ window.NEEDLOGIN=!window.FIREBASE_CONFIG.apiKey.startsWith("ISI");
 <header><button id="lo" class="b" hidden style="float:right;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="profil()" aria-label="Profil akun">Profil</button><h1>Database Atlet BKC</h1><p>Bidang Prestasi · Pengurus Cabang Kabupaten Bogor</p></header>
 <main id="app"></main>
 <footer class="cr">Created By Diva Hizbullah, S.Kom</footer>
-<aside id="dr" aria-label="Menu navigasi"><div class="dh">Menu</div><div id="nav"></div><div class="dc">Created By Diva Hizbullah, S.Kom</div><button id="hd" aria-label="Buka menu" aria-expanded="false">\u2630</button></aside>
+<aside id="dr" aria-label="Menu navigasi"><div class="dh">Menu</div><div id="nav"></div><button id="hd" aria-label="Buka menu" aria-expanded="false">\u2630</button></aside>
 <div id="bd"></div>
 <dialog id="dlg"></dialog>
 <script>
@@ -101,7 +101,7 @@ function dl(name,data){const u=URL.createObjectURL(new Blob([data],{type:"text/p
 function exportCSV(){dl("bkc-atlet.csv",csv([["Nama","Gender","Lahir","Dojo","Sabuk","Kategori","Kelas","BB","TB","HP","Status","Emas","Perak","Perunggu","Poin"],...S.a.map(a=>{const c=cnt(a);return [a.nama,a.gender,a.lahir,a.dojo,a.sabuk,a.kat,a.kelas,a.bb,a.tb,a.hp,a.status||"Aktif",c.Emas,c.Perak,c.Perunggu,pts(a)]})]))}
 function clearAll(){if(!isAdm())return;if(confirm("Hapus SEMUA data atlet? Tindakan ini berlaku untuk semua pengurus.")){S={a:[]};sel.clear();save();render()}}
 function foto(id){if(!window.FB||!FB.putFoto){alert("Foto tersedia setelah database online diatur.");return}const i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{const im=new Image;im.onload=async()=>{try{const c=document.createElement("canvas"),k=Math.min(1,256/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);await FB.putFoto(id,c.toDataURL("image/jpeg",.7));render();detail(id)}catch(e){alert("Foto gagal diunggah.")}};im.src=URL.createObjectURL(i.files[0])};i.click()}
-function showLogin(){D.innerHTML=`<h2 style="margin-top:0">Masuk aplikasi</h2><div class="row" style="margin:8px 0"><button class="b sp" id="rp" onclick="setLR('pelatih')">Pelatih</button><button class="b sp" id="ra" onclick="setLR('admin')">Pengurus</button></div><div class="mut" id="lt" style="font-size:12px"></div><label>Email<input id="lm" type="email" autocomplete="username"></label><label>Kata sandi<input id="lp" type="password" autocomplete="current-password"></label><div id="le" style="color:var(--ac);margin:6px 0"></div><button class="b p" id="lb" style="width:100%" onclick="doLogin()">Masuk</button><div class="cr-l">Created By Diva Hizbullah, S.Kom</div>`;setLR(LR);if(window.LERR){le.textContent=window.LERR;window.LERR=""}if(!D.open)D.showModal()}
+function showLogin(){D.innerHTML=`<h2 style="margin-top:0">Masuk aplikasi</h2><div class="row" style="margin:8px 0"><button class="b sp" id="rp" onclick="setLR('pelatih')">Pelatih</button><button class="b sp" id="ra" onclick="setLR('admin')">Pengurus</button></div><div class="mut" id="lt" style="font-size:12px"></div><label>Email<input id="lm" type="email" autocomplete="username"></label><label>Kata sandi<input id="lp" type="password" autocomplete="current-password"></label><div id="le" style="color:var(--ac);margin:6px 0"></div><button class="b p" id="lb" style="width:100%" onclick="doLogin()">Masuk</button>`;setLR(LR);if(window.LERR){le.textContent=window.LERR;window.LERR=""}if(!D.open)D.showModal()}
 function setLR(r){LR=r;const a=r=="admin";rp.className="b sp"+(a?"":" p");ra.className="b sp"+(a?" p":"");ra.style.cssText=a?"background:var(--ink);color:var(--bg);border-color:var(--ink)":"";lt.textContent=a?"Login pengurus":"Pelatih: input atlet, event, dan hasil kejuaraan.";lb.textContent=a?"Masuk sebagai Pengurus":"Masuk sebagai Pelatih";lb.style.cssText=a?"width:100%;background:var(--ink);border-color:var(--ink)":"width:100%";D.style.borderTop="6px solid "+(a?"var(--ink)":"var(--ac)")}
 function doLogin(){le.textContent="";window.WANT=LR;FB.login(lm.value.trim(),lp.value).catch(e=>{window.WANT=null;const c=e&&e.code||"";le.textContent=c=="auth/invalid-credential"||c=="auth/wrong-password"||c=="auth/user-not-found"?"Email atau kata sandi salah.":c=="auth/unauthorized-domain"?"Domain ini belum diizinkan. Tambahkan di Firebase: Authentication > Settings > Authorized domains.":"Gagal masuk: "+(c||e)})}
 const EV=()=>S.ev||(S.ev=[]);
