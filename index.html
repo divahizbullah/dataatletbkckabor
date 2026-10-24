@@ -57,7 +57,7 @@ window.NEEDLOGIN=!window.FIREBASE_CONFIG.apiKey.startsWith("ISI");
 </script>
 </head>
 <body>
-<header><button id="lo" class="b" hidden style="float:right" onclick="FB.logout()">Keluar</button><h1>Database Atlet BKC</h1><p>Bidang Prestasi · Pengurus Cabang Kabupaten Bogor</p></header>
+<header><button id="lo" class="b" hidden style="float:right;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="profil()" aria-label="Profil akun">Profil</button><h1>Database Atlet BKC</h1><p>Bidang Prestasi · Pengurus Cabang Kabupaten Bogor</p></header>
 <main id="app"></main>
 <nav id="nav"></nav>
 <dialog id="dlg"></dialog>
@@ -158,7 +158,7 @@ function vDash(){
 
 function vAth(){
  const L=S.a.filter(a=>(!q||(a.nama+a.dojo).toLowerCase().includes(q.toLowerCase()))&&(!fk||a.kat==fk));
- return `<div class="row"><input id="q" placeholder="Cari nama atau dojo" value="${esc(q)}" oninput="q=this.value;keep()" class="sp"><select onchange="fk=this.value;render()"><option value="">Semua</option><option ${fk=="Kata"?"selected":""}>Kata</option><option ${fk=="Kumite"?"selected":""}>Kumite</option></select><button class="b" onclick="document.getElementById('xl').click()">Impor Excel</button><input id="xl" type="file" accept=".xlsx,.xls" hidden onchange="impXlsx(this)"><button class="b p" onclick="formAth()">Tambah atlet</button></div>
+ return `<div class="row"><input id="q" placeholder="Cari nama atau dojo" value="${esc(q)}" oninput="q=this.value;keep()" class="sp"><select onchange="fk=this.value;render()"><option value="">Semua</option><option ${fk=="Kata"?"selected":""}>Kata</option><option ${fk=="Kumite"?"selected":""}>Kumite</option></select><button class="b" onclick="dlTemplate()">Unduh template</button><button class="b" onclick="document.getElementById('xl').click()">Impor Excel</button><input id="xl" type="file" accept=".xlsx,.xls" hidden onchange="impXlsx(this)"><button class="b p" onclick="formAth()">Tambah atlet</button></div>
  <div class="grid" id="list">${listHtml(L)}</div>`;
 }
 function listHtml(L){return L.map(a=>`<div class="box ath" onclick="detail('${a.id}')">${av(a)}<div><b>${esc(a.nama)}</b><div class="mut">${esc(a.dojo)} · ${age(a)} th</div><div>${sabuk(a.sabuk)}${(a.status||"Aktif")=="Nonaktif"?' <span class="mut">(nonaktif)</span>':""}</div><div>${medHtml(a)}<span class="mut">${pts(a)} poin</span></div></div></div>`).join("")||'<div class="box mut">Atlet tidak ditemukan. Ubah kata kunci atau tambah atlet baru.</div>'}
@@ -242,23 +242,41 @@ function impXlsx(inp){const f=inp.files[0];inp.value="";if(!f)return;if(!window.
   save();render();
   alert(`Impor selesai.\nAtlet baru: ${nb}\nAtlet diperbarui: ${up}\nHasil kejuaraan ditambah: ${hs}`+(er.length?`\n\nDilewati (${er.length}):\n`+er.slice(0,8).join("\n")+(er.length>8?"\n...":""):""))
  }catch(e){alert("File tidak bisa dibaca. Gunakan template Excel yang disediakan.")}})}
+function saveBlob(b,n){const u=URL.createObjectURL(b),l=document.createElement("a");l.href=u;l.download=n;l.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+function dlTemplate(){fetch("Template_Data_Atlet_BKC.xlsx").then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>saveBlob(b,"Template_Data_Atlet_BKC.xlsx")).catch(()=>{if(!window.XLSX){alert("Template tidak ditemukan. Unggah Template_Data_Atlet_BKC.xlsx ke repository GitHub.");return}
+ const w=XLSX.utils.book_new();XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet([["Nama Lengkap *","Jenis Kelamin *","Tanggal Lahir\n(yyyy-mm-dd)","Dojo","Sabuk *","Kategori Utama *","Kelas","Berat (kg)","Tinggi (cm)","No. HP / Wali","Status","Catatan Pelatih"],["(CONTOH) Budi Santoso","Putra","2010-05-14","Dojo Cibinong","Hijau","Kumite","-55 kg",54,160,"081234567890","Aktif","Cepat, perlu latihan stamina"]]),"Data Atlet");
+ XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet([["Nama Atlet *","Nama Kejuaraan *","Tingkat *","Tahun *","Kategori","Hasil *"],["(CONTOH) Budi Santoso","Kejurkab Bogor","Kabupaten",2025,"Kumite","Emas"]]),"Hasil Kejuaraan");XLSX.writeFile(w,"Template_Data_Atlet_BKC.xlsx")})}
+function pMsg(t,ok){pm.textContent=t;pm.style.color=ok?"var(--ink)":"var(--ac)"}
+const pErr=e=>{const c=e&&e.code||"";return c=="auth/invalid-credential"||c=="auth/wrong-password"?"Kata sandi saat ini salah.":c=="auth/weak-password"?"Kata sandi baru terlalu lemah (minimal 6 karakter).":c=="auth/email-already-in-use"?"Email sudah dipakai akun lain.":c=="auth/invalid-email"?"Format email tidak valid.":c=="auth/too-many-requests"?"Terlalu banyak percobaan. Coba lagi nanti.":c=="auth/requires-recent-login"?"Masuk ulang dulu, lalu coba lagi.":"Gagal: "+(c||e)};
+function profil(){const m=window.ME||{};D.innerHTML=`<div class="row"><h2 class="sp" style="margin:0">Profil akun</h2><button class="b" onclick="D.close()">Tutup</button></div><div class="mut" style="margin:6px 0">${esc(m.email)} \u00b7 ${m.role=="admin"?"Admin":"Pelatih"}</div>
+<label>Nama<input id="pn" value="${esc(m.name)}" placeholder="Nama lengkap"></label><button class="b p" style="margin-top:8px" onclick="pNama()">Simpan nama</button>
+<h2>Keamanan</h2><label>Kata sandi saat ini (wajib untuk ganti email atau kata sandi)<input id="po" type="password" autocomplete="current-password"></label>
+<label>Email baru<input id="pe" type="email"></label><button class="b" style="margin-top:8px" onclick="pEmail()">Kirim verifikasi email baru</button>
+<label>Kata sandi baru (minimal 6 karakter)<input id="pw" type="password" autocomplete="new-password"></label><label>Ulangi kata sandi baru<input id="pw2" type="password" autocomplete="new-password"></label><button class="b" style="margin-top:8px" onclick="pPass()">Ganti kata sandi</button>
+<div id="pm" style="margin:10px 0;min-height:20px"></div><button class="b d" style="width:100%" onclick="D.close();FB.logout()">Keluar dari akun</button>`;D.showModal()}
+async function pNama(){try{await FB.setName(pn.value.trim());pMsg("Nama disimpan.",1)}catch(e){pMsg(pErr(e))}}
+async function pEmail(){if(!po.value){pMsg("Isi kata sandi saat ini.");return}if(!pe.value.trim()){pMsg("Isi email baru.");return}try{await FB.setEmail(po.value,pe.value.trim());pMsg("Tautan verifikasi dikirim ke email baru. Email berubah setelah tautan itu dibuka.",1)}catch(e){pMsg(pErr(e))}}
+async function pPass(){if(!po.value){pMsg("Isi kata sandi saat ini.");return}if(pw.value.length<6){pMsg("Kata sandi baru minimal 6 karakter.");return}if(pw.value!==pw2.value){pMsg("Ulangi kata sandi baru tidak sama.");return}try{await FB.setPass(po.value,pw.value);pw.value=pw2.value=po.value="";pMsg("Kata sandi berhasil diganti.",1)}catch(e){pMsg(pErr(e))}}
 D.addEventListener("cancel",e=>{if(window.NEEDLOGIN)e.preventDefault()});
 load();render();initDb();
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,EmailAuthProvider,reauthenticateWithCredential,updatePassword,updateProfile,verifyBeforeUpdateEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot,collection} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const C=window.FIREBASE_CONFIG,hp=document.querySelector("header p"),base=hp.textContent;
 if(C.apiKey&&!C.apiKey.startsWith("ISI")){
 const app=initializeApp(C),auth=getAuth(app),fs=getFirestore(app),ref=doc(fs,"app","state"),lo=document.getElementById("lo");let un=[];
-window.FB={login:(e,p)=>signInWithEmailAndPassword(auth,e,p),logout:()=>signOut(auth),putFoto:async(id,d)=>{await setDoc(doc(fs,"foto",id),{d});FOTO[id]=d}};
+window.FB={login:(e,p)=>signInWithEmailAndPassword(auth,e,p),logout:()=>signOut(auth),
+ setName:async n=>{await updateProfile(auth.currentUser,{displayName:n});window.ME.name=n;lo.textContent=(n||window.ME.email)+" \u25be"},
+ setPass:async(c,n)=>{const u=auth.currentUser;await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,c));await updatePassword(u,n)},
+ setEmail:async(c,e)=>{const u=auth.currentUser;await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,c));await verifyBeforeUpdateEmail(u,e)},putFoto:async(id,d)=>{await setDoc(doc(fs,"foto",id),{d});FOTO[id]=d}};
 onAuthStateChanged(auth,async u=>{un.forEach(f=>f());un=[];setDB(null);lo.hidden=!u;
- if(!u){setROLE(null);window.NEEDLOGIN=true;try{localStorage.removeItem(KEY)}catch(e){}hp.textContent=base;render();return}
+ if(!u){window.ME=null;setROLE(null);window.NEEDLOGIN=true;try{localStorage.removeItem(KEY)}catch(e){}hp.textContent=base;render();return}
  let role=null;try{const r=await getDoc(doc(fs,"users",u.uid));role=r.exists()?r.data().role:null}catch(e){}
  if(role!=="admin"&&role!=="pelatih"){window.LERR="Akun ini belum diberi peran. Hubungi admin.";window.WANT=null;await signOut(auth);return}
  if(window.WANT&&window.WANT!==role){window.LERR=window.WANT=="admin"?"Akun ini bukan admin. Pilih Pelatih untuk masuk.":"Akun ini terdaftar sebagai admin. Pilih Admin untuk masuk.";window.WANT=null;await signOut(auth);return}
- window.WANT=null;setROLE(role);window.NEEDLOGIN=false;if(D.open)D.close();D.style.borderTop="";
+ window.WANT=null;setROLE(role);window.ME={name:u.displayName||"",email:u.email,role};lo.textContent=(u.displayName||u.email)+" \u25be";window.NEEDLOGIN=false;if(D.open)D.close();D.style.borderTop="";
  try{const s=await getDoc(ref);
   if(s.exists()){setS(JSON.parse(s.data().json))}else{setS({a:[],ev:[]});await setDoc(ref,{json:JSON.stringify(S)})}
   setDB({set:o=>setDoc(ref,o)});hp.textContent=base+" \u00b7 Data bersama aktif \u00b7 "+(role=="admin"?"Admin":"Pelatih");render();
