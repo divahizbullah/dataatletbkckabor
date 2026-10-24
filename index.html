@@ -89,7 +89,7 @@ function exportCSV(){dl("bkc-atlet.csv",csv([["Nama","Gender","Lahir","Dojo","Sa
 function clearAll(){if(confirm("Hapus SEMUA data atlet? Tindakan ini berlaku untuk semua pengurus.")){S={a:[]};sel.clear();save();render()}}
 function foto(id){if(!window.FB||!FB.putFoto){alert("Foto tersedia setelah database online diatur.");return}const i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{const im=new Image;im.onload=async()=>{try{const c=document.createElement("canvas"),k=Math.min(1,256/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);await FB.putFoto(id,c.toDataURL("image/jpeg",.7));render();detail(id)}catch(e){alert("Foto gagal diunggah.")}};im.src=URL.createObjectURL(i.files[0])};i.click()}
 function loginHtml(){return `<div class="box" style="max-width:380px;margin:30px auto"><h2 style="margin-top:0">Masuk pengurus</h2><label>Email<input id="lm" type="email" autocomplete="username"></label><label>Kata sandi<input id="lp" type="password" autocomplete="current-password"></label><div id="le" style="color:var(--ac);margin:6px 0"></div><button class="b p" style="width:100%" onclick="doLogin()">Masuk</button></div>`}
-function doLogin(){le.textContent="";FB.login(lm.value.trim(),lp.value).catch(()=>{le.textContent="Email atau kata sandi salah."})}
+function doLogin(){le.textContent="";FB.login(lm.value.trim(),lp.value).catch(e=>{const c=e&&e.code||"";le.textContent=c=="auth/invalid-credential"||c=="auth/wrong-password"||c=="auth/user-not-found"?"Email atau kata sandi salah.":c=="auth/unauthorized-domain"?"Domain ini belum diizinkan. Tambahkan di Firebase: Authentication > Settings > Authorized domains.":"Gagal masuk: "+(c||e)})}
 const EV=()=>S.ev||(S.ev=[]);
 function syncEvt(){S.a.forEach(a=>a.results=a.results.filter(r=>!r.evid));EV().forEach(e=>(e.peserta||[]).forEach(p=>{const a=S.a.find(x=>x.id==p.aid);if(a&&p.hasil)a.results.push({id:uid(),event:e.nama,tingkat:e.tingkat,tahun:e.tanggal?+e.tanggal.slice(0,4):new Date().getFullYear(),kat:p.kat,medali:p.hasil,evid:e.id})}))}
 function vEvt(){const L=[...EV()].sort((x,y)=>(y.tanggal||"").localeCompare(x.tanggal||""));
@@ -234,7 +234,7 @@ onAuthStateChanged(auth,async u=>{un.forEach(f=>f());un=[];setDB(null);lo.hidden
   setDB({set:o=>setDoc(ref,o)});hp.textContent=base+" \u00b7 Data bersama aktif";render();
   un.push(onSnapshot(ref,x=>{if(!x.exists()||x.metadata.hasPendingWrites||D.open)return;const j=x.data().json;if(j!==JSON.stringify(S)){setS(JSON.parse(j));render()}}));
   un.push(onSnapshot(collection(fs,"foto"),q=>{q.docs.forEach(d=>FOTO[d.id]=d.data().d);if(!D.open)render()}));
- }catch(e){hp.textContent=base+" \u00b7 Gagal terhubung ke database";render()}
+ }catch(e){hp.textContent=base+" \u00b7 Gagal terhubung: "+(e.code||e.message);render()}
 });
 }else{hp.textContent=base+" \u00b7 Mode lokal (database belum diatur)"}
 </script>
